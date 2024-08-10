@@ -1,0 +1,3 @@
+[submodule "booking_service/car-wash"]
+	path = booking_service/car-wash
+	url = https://github.com/Mubinabd/car-wash.git

@@ -1,6 +1,6 @@
 syntax="proto3";
 
-option go_package = "genproto/car-wash";
+option go_package = "genproto";
 
 package car_wash;
 
