@@ -1,0 +1,27 @@
+syntax="proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+import "protos/services.proto";
+
+service CartService {
+rpc CreateCart(CreateCartReq) returns (Empty) {}
+    rpc GetCart(GetById) returns (Cart) {}
+}
+message CreateCartReq{
+    string user_id = 1;
+    string service_id = 2;
+    int32 total = 3;
+    int64 number = 4;
+}
+
+message Cart{
+    string id = 1;
+    string user_id = 2;
+    Services service_id = 3;
+    int32 total = 4;
+    int64 number = 5;
+}

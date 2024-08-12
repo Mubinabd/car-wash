@@ -1,0 +1,63 @@
+syntax="proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+import "protos/booking.proto";
+import "protos/providers.proto";
+
+service ReviewService{
+    rpc AddReview(AddReviewReq) returns (Empty);
+    rpc GetReview(GetById) returns (Review);
+    rpc UpdateReview(UpdateReviewsReq) returns (UpdateReviewsResp);
+    rpc DeleteReview(DeleteReviewReq) returns (DeleteReviewResp);
+    rpc ListAllReviews(ListAllReviewsReq) returns (ListAllReviewsResp);
+}
+message Review {
+    string id = 1;
+    Booking booking_id = 2;
+    string user_id = 3;
+    Provider provider_id = 4;
+    int32 rating = 5;
+    string comment = 6;
+    string created_at = 7;
+    string updated_at = 8;
+    string deleted_at = 9;
+}
+
+message ListAllReviewsReq {
+    string booking_id = 1;
+    string user_id = 2;
+    string provider_id = 3;
+    Filter filter = 4;
+}
+
+
+message ListAllReviewsResp {
+    repeated Review reviews = 1;
+}
+
+message AddReviewReq {
+    string booking_id = 1;
+    int32 rating = 2;
+    string comment = 3;
+    string user_id = 4;
+    string provider_id = 5;
+}
+message UpdateReviewsReq{
+    string id = 1;
+    Review review = 2;
+}
+message UpdateReviewsResp{
+    bool success = 1;
+    string message = 2;
+}
+message DeleteReviewReq {
+    string id = 1;
+}
+message DeleteReviewResp {
+    bool success = 1;
+    string message = 2;
+}

@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+import "protos/booking.proto";
+
+
+service PaymentService {
+    rpc AddPayment(AddPaymentReq) returns (Empty) {}
+    rpc GetPayment(GetById) returns (GetPaymentResp) {}
+    rpc ListAllPayments(ListAllPaymentsReq) returns (ListAllPaymentsResp) {}
+}
+
+message Payment {
+    string id = 1;
+    Booking booking_id = 2;
+    float amount = 3;
+    string status = 4;
+    string payment_method = 5;
+    string transaction_id = 6;
+    string created_at = 7;
+    string updated_at = 8;
+    string deleted_at = 9;
+}
+
+message AddPaymentReq {
+    string booking_id = 1;
+    float amount = 2;
+    string status = 3;
+    string payment_method = 4;
+    string transaction_id = 5;
+}
+
+message GetPaymentResp {
+    Payment payment = 1;
+}
+
+message ListAllPaymentsReq {
+    string booking_id = 1;
+    string status = 2;
+    Filter filter = 3;
+}
+
+message ListAllPaymentsResp {
+    repeated Payment payments = 1;
+}

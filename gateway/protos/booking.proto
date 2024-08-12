@@ -1,0 +1,76 @@
+syntax="proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+import "protos/providers.proto";
+import "protos/services.proto";
+
+
+service Bookings {
+    rpc AddBooking (AddBookingReq) returns (Empty) {}
+    rpc GetBooking (GetById) returns (GetBookingResp) {}
+    rpc ListAllBookings (ListAllBookingsReq) returns (ListAllBookingsResp) {}
+    rpc UpdateBooking (UpdateBookingReq) returns (UpdateBookingResp) {}
+    rpc DeleteBooking (DeleteBookingReq) returns (DeleteBookingResp) {}
+    rpc GetBookingsByProvider (BookingsByProviderReq) returns (BookingsByProviderResp) {}
+}
+message Booking {
+    string id = 1;
+    string user_id = 2;
+    Provider provider_id = 3;
+    Services service_id = 4;
+    GeoPoint location = 5;
+    string schudule_time = 6;
+    string status = 7;
+    float total_price = 8;
+    string created_at = 9;
+    string updated_at = 10;
+    string deleted_at = 11;
+}
+message AddBookingReq {
+    string user_id = 1;
+    string provider_id = 2;
+    string service_id = 3;
+    GeoPoint location = 4;
+    string schudule_time = 5;
+}
+message GetBookingResp {
+    Booking booking = 1;
+}
+message ListAllBookingsReq {
+    string status = 1;
+    string user_id = 2;
+    string provider_id = 3;
+    Filter filter = 4;
+}
+
+message ListAllBookingsResp {
+    repeated Booking bookings = 1;
+}
+
+message UpdateBookingReq{
+    string id = 1;
+    Booking booking = 2;
+}
+message UpdateBookingResp{
+    bool success = 1;
+    string message = 2;
+}
+message DeleteBookingReq {
+    string id = 1;
+}
+message DeleteBookingResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message BookingsByProviderReq {
+    string provider_id = 1; 
+}
+
+message BookingsByProviderResp {
+    repeated Booking bookings = 1;
+}

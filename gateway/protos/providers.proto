@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+service ProviderService {
+    rpc RegisterProvider(RegisterProviderReq) returns (RegisterProviderResp);
+    rpc GetProvider(GetById) returns (GetProviderResp);
+    rpc ListAllProviders(ListAllProvidersReq) returns (ListAllProvidersResp);
+    rpc UpdateProvider(UpdateProviderReq) returns (UpdateProviderResp);
+    rpc DeleteProvider(DeleteProviderReq) returns (DeleteProviderResp);
+    rpc SearchProviders(SearchProvidersReq) returns (SearchProvidersResp);
+}
+message Provider {
+    string id = 1; 
+    string user_id = 2; 
+    string company_name = 3;
+    string description = 4;
+    repeated string services = 5; 
+    string availability = 6; 
+    float average_rating = 7;
+    GeoPoint location = 8; 
+    string created_at = 9;
+    string updated_at = 10;
+    string deleted_at = 11;
+}
+
+message RegisterProviderReq {
+    string user_id = 1; 
+    string company_name = 2;
+    string description = 3;
+    repeated string services = 4; 
+    string availability = 5; 
+    float average_rating = 6;
+    GeoPoint location = 7; 
+}
+
+message RegisterProviderResp {
+    Provider provider = 1;
+}
+
+message GetProviderResp{
+    Provider provider = 1;
+}
+message ListAllProvidersReq{
+    string company_name = 1;
+    string description = 2;
+    Filter filter = 3;
+}
+
+message ListAllProvidersResp{
+    repeated Provider providers = 1;
+}
+
+message UpdateProviderReq {
+    string id = 1;
+    Provider provider = 2;
+}
+
+message UpdateProviderResp {
+    Provider provider = 1;
+}
+message DeleteProviderReq {
+    string id = 1;
+}
+message DeleteProviderResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message SearchProvidersReq {
+    string company_name = 1;
+    string description = 2;
+    string user_id = 3;
+}
+
+message SearchProvidersResp {
+    repeated Provider providers = 1;
+}

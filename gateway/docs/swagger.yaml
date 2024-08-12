@@ -1,0 +1,1300 @@
+definitions:
+  genproto.AddBookingReq:
+    properties:
+      location:
+        $ref: '#/definitions/genproto.GeoPoint'
+      provider_id:
+        type: string
+      schudule_time:
+        type: string
+      service_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.AddNotificationReq:
+    properties:
+      message:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.AddPaymentReq:
+    properties:
+      amount:
+        type: number
+      booking_id:
+        type: string
+      payment_method:
+        type: string
+      status:
+        type: string
+      transaction_id:
+        type: string
+    type: object
+  genproto.AddReviewReq:
+    properties:
+      booking_id:
+        type: string
+      comment:
+        type: string
+      provider_id:
+        type: string
+      rating:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  genproto.AddServiceReq:
+    properties:
+      description:
+        type: string
+      duration:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  genproto.Booking:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      location:
+        $ref: '#/definitions/genproto.GeoPoint'
+      provider_id:
+        $ref: '#/definitions/genproto.Provider'
+      schudule_time:
+        type: string
+      service_id:
+        $ref: '#/definitions/genproto.Services'
+      status:
+        type: string
+      total_price:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.BookingsByProviderResp:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/genproto.Booking'
+        type: array
+    type: object
+  genproto.Cart:
+    properties:
+      id:
+        type: string
+      number:
+        type: integer
+      service_id:
+        $ref: '#/definitions/genproto.Services'
+      total:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  genproto.CreateCartReq:
+    properties:
+      number:
+        type: integer
+      service_id:
+        type: string
+      total:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  genproto.GeoPoint:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  genproto.GetBookingResp:
+    properties:
+      booking:
+        $ref: '#/definitions/genproto.Booking'
+    type: object
+  genproto.GetNotificationsResp:
+    properties:
+      notifications:
+        items:
+          $ref: '#/definitions/genproto.Notification'
+        type: array
+    type: object
+  genproto.GetProviderResp:
+    properties:
+      provider:
+        $ref: '#/definitions/genproto.Provider'
+    type: object
+  genproto.GetServicesByPriceRangeResp:
+    properties:
+      services:
+        items:
+          $ref: '#/definitions/genproto.Services'
+        type: array
+    type: object
+  genproto.GetServicesResp:
+    properties:
+      services:
+        $ref: '#/definitions/genproto.Services'
+    type: object
+  genproto.ListAllBookingsResp:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/genproto.Booking'
+        type: array
+    type: object
+  genproto.ListAllPaymentsResp:
+    properties:
+      payments:
+        items:
+          $ref: '#/definitions/genproto.Payment'
+        type: array
+    type: object
+  genproto.ListAllProvidersResp:
+    properties:
+      providers:
+        items:
+          $ref: '#/definitions/genproto.Provider'
+        type: array
+    type: object
+  genproto.ListAllReviewsResp:
+    properties:
+      reviews:
+        items:
+          $ref: '#/definitions/genproto.Review'
+        type: array
+    type: object
+  genproto.ListAllServicesResp:
+    properties:
+      services:
+        items:
+          $ref: '#/definitions/genproto.Services'
+        type: array
+    type: object
+  genproto.MarkNotificationAsReadReq:
+    properties:
+      id:
+        type: string
+    type: object
+  genproto.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      message:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.Payment:
+    properties:
+      amount:
+        type: number
+      booking_id:
+        $ref: '#/definitions/genproto.Booking'
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      payment_method:
+        type: string
+      status:
+        type: string
+      transaction_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  genproto.Provider:
+    properties:
+      availability:
+        type: string
+      average_rating:
+        type: number
+      company_name:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      location:
+        $ref: '#/definitions/genproto.GeoPoint'
+      services:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.RegisterProviderReq:
+    properties:
+      availability:
+        type: string
+      average_rating:
+        type: number
+      company_name:
+        type: string
+      description:
+        type: string
+      location:
+        $ref: '#/definitions/genproto.GeoPoint'
+      services:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+  genproto.Review:
+    properties:
+      booking_id:
+        $ref: '#/definitions/genproto.Booking'
+      comment:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      provider_id:
+        $ref: '#/definitions/genproto.Provider'
+      rating:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genproto.SearchProvidersResp:
+    properties:
+      providers:
+        items:
+          $ref: '#/definitions/genproto.Provider'
+        type: array
+    type: object
+  genproto.SearchServicessResp:
+    properties:
+      services:
+        items:
+          $ref: '#/definitions/genproto.Services'
+        type: array
+    type: object
+  genproto.Services:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      duration:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  genproto.UpdateBookingReq:
+    properties:
+      booking:
+        $ref: '#/definitions/genproto.Booking'
+      id:
+        type: string
+    type: object
+  genproto.UpdateProviderReq:
+    properties:
+      id:
+        type: string
+      provider:
+        $ref: '#/definitions/genproto.Provider'
+    type: object
+  genproto.UpdateServiceReq:
+    properties:
+      id:
+        type: string
+      services:
+        $ref: '#/definitions/genproto.Services'
+    type: object
+info:
+  contact: {}
+  description: This is a sample server celler server.
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /api/v1/booking:
+    get:
+      consumes:
+      - application/json
+      description: This API lists all bookings with optional filters
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Provider ID
+        in: query
+        name: provider_id
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.ListAllBookingsResp'
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List all bookings
+      tags:
+      - carwash/booking
+  /api/v1/booking/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This API deletes a booking by its ID
+      parameters:
+      - description: Booking Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "booking deleted successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+        "500":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete booking
+      tags:
+      - carwash/booking
+    get:
+      consumes:
+      - application/json
+      description: This API retrieves a booking by its ID
+      parameters:
+      - description: Booking Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.GetBookingResp'
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+        "500":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get booking
+      tags:
+      - carwash/booking
+    put:
+      consumes:
+      - application/json
+      description: This API updates an existing booking
+      parameters:
+      - description: Booking Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update booking Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.UpdateBookingReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "booking updated successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+        "500":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update booking
+      tags:
+      - carwash/booking
+  /api/v1/booking/add:
+    post:
+      consumes:
+      - application/json
+      description: This API adds a new booking
+      parameters:
+      - description: Add booking Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.AddBookingReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "booking created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+        "500":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Add booking
+      tags:
+      - carwash/booking
+  /api/v1/booking/provider:
+    get:
+      consumes:
+      - application/json
+      description: This API retrieves bookings for a specific provider
+      parameters:
+      - description: Provider ID
+        in: query
+        name: provider_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.BookingsByProviderResp'
+        "400":
+          description: 'error": "error description'
+          schema:
+            type: string
+        "500":
+          description: 'error": "error description'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get bookings by provider
+      tags:
+      - carwash/booking
+  /api/v1/cart/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific cart by its ID.
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Cart'
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      summary: GET cart by ID
+      tags:
+      - carwash/Cart
+  /api/v1/cart/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a new cart.
+      parameters:
+      - description: Cart data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.CreateCartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE cart
+      tags:
+      - carwash/Cart
+  /api/v1/notification/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This API retrieves a notification by ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.GetNotificationsResp'
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      summary: GET notification
+      tags:
+      - carwash/Notification
+  /api/v1/notification/{id}/read:
+    put:
+      consumes:
+      - application/json
+      description: This API marks a notification as read
+      parameters:
+      - description: Notification
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.MarkNotificationAsReadReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "updated successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: MARK notification as read
+      tags:
+      - carwash/Notification
+  /api/v1/notification/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a notification
+      parameters:
+      - description: Notification
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.AddNotificationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE notification
+      tags:
+      - carwash/Notification
+  /api/v1/payment:
+    get:
+      consumes:
+      - application/json
+      description: This API retrieves all Payments with optional filters
+      parameters:
+      - description: Booking ID
+        in: query
+        name: booking_id
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.ListAllPaymentsResp'
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      summary: GET all Payments
+      tags:
+      - carwash/Payment
+  /api/v1/payment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This API retrieves a Payment by ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Payment'
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      summary: GET Payment
+      tags:
+      - carwash/Payment
+  /api/v1/payment/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a Payment
+      parameters:
+      - description: Payment
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.AddPaymentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE Payment
+      tags:
+      - carwash/Payment
+  /api/v1/provider:
+    get:
+      consumes:
+      - application/json
+      description: This API Lists a new provider
+      parameters:
+      - description: Company Name
+        in: query
+        name: company_name
+        type: string
+      - description: Description
+        in: query
+        name: description
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.ListAllProvidersResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List all provider
+      tags:
+      - carwash/provider
+  /api/v1/provider/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This API deleted a new provider
+      parameters:
+      - description: provider Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: provider deleted successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete provider
+      tags:
+      - carwash/provider
+    get:
+      consumes:
+      - application/json
+      description: This API Gets a  provider
+      parameters:
+      - description: provider Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.GetProviderResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get provider
+      tags:
+      - carwash/provider
+    put:
+      consumes:
+      - application/json
+      description: This API Put s a new provider
+      parameters:
+      - description: Put  provider Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.UpdateProviderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: provider updated successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Put  provider
+      tags:
+      - carwash/provider
+  /api/v1/provider/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a provider
+      parameters:
+      - description: Provider
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.RegisterProviderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE provider
+      tags:
+      - carwash/provider
+  /api/v1/provider/search:
+    get:
+      consumes:
+      - application/json
+      description: This API gets a  provider
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: description
+        in: path
+        name: description
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.SearchProvidersResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get provider
+      tags:
+      - carwash/provider
+  /api/v1/review:
+    get:
+      consumes:
+      - application/json
+      description: This API Lists a new review
+      parameters:
+      - description: Booking iD
+        in: query
+        name: booking_id
+        type: string
+      - description: provider ID
+        in: query
+        name: provider_id
+        type: string
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.ListAllReviewsResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List all review
+      tags:
+      - carwash/review
+  /api/v1/review/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This API deleted a new review
+      parameters:
+      - description: review Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: review deleted successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete review
+      tags:
+      - carwash/review
+    get:
+      consumes:
+      - application/json
+      description: This API Gets a  review
+      parameters:
+      - description: review Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Review'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get review
+      tags:
+      - carwash/review
+  /api/v1/review/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a review
+      parameters:
+      - description: review
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.AddReviewReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE review
+      tags:
+      - carwash/review
+  /api/v1/service:
+    get:
+      consumes:
+      - application/json
+      description: This API Lists a new service
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Description
+        in: query
+        name: description
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.ListAllServicesResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List all service
+      tags:
+      - carwash/service
+  /api/v1/service/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This API deleted a new service
+      parameters:
+      - description: service Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: service deleted successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete service
+      tags:
+      - carwash/service
+    get:
+      consumes:
+      - application/json
+      description: This API Gets a  service
+      parameters:
+      - description: service Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.GetServicesResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get service
+      tags:
+      - carwash/service
+    put:
+      consumes:
+      - application/json
+      description: This API Put s a new service
+      parameters:
+      - description: Put  service Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.UpdateServiceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: service updated successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Put  service
+      tags:
+      - carwash/service
+  /api/v1/service/add:
+    post:
+      consumes:
+      - application/json
+      description: This API creates a service
+      parameters:
+      - description: service
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.AddServiceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "created successfully'
+          schema:
+            type: string
+        "400":
+          description: 'error": "error message'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: CREATE service
+      tags:
+      - carwash/service
+  /api/v1/service/priceRange:
+    get:
+      consumes:
+      - application/json
+      description: This API gets a  service
+      parameters:
+      - description: min_price
+        in: path
+        name: min_price
+        required: true
+        type: integer
+      - description: max_price
+        in: path
+        name: max_price
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.GetServicesByPriceRangeResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get service
+      tags:
+      - carwash/service
+  /api/v1/service/search:
+    get:
+      consumes:
+      - application/json
+      description: This API gets a  service
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: description
+        in: path
+        name: description
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.SearchServicessResp'
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get service
+      tags:
+      - carwash/service
+securityDefinitions:
+  ApiKeyAuth:
+    description: Description for what is this security definition being used
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

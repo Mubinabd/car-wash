@@ -1,0 +1,78 @@
+syntax="proto3";
+
+option go_package = "genproto/";
+
+package car_wash;
+
+import "protos/common.proto";
+service ServicesService{
+    rpc AddService(AddServiceReq) returns (Empty);
+    rpc GetServices(GetById) returns (GetServicesResp);
+    rpc ListAllServices(ListAllServicesReq) returns (ListAllServicesResp);
+    rpc UpdateService(UpdateServiceReq) returns (UpdateServiceResp);
+    rpc DeleteService(DeleteServiesReq) returns (DeleteServiesResp);
+    rpc SearchServices(SearchServicessReq) returns (SearchServicessResp);
+    rpc GetServicesByPriceRange(GetServicesByPriceRangeReq) returns (GetServicesByPriceRangeResp);
+}
+message Services{
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 duration = 5;
+    string created_at = 6;
+    string updated_at = 7;
+    string deleted_at = 8;
+}
+
+message AddServiceReq{
+    string name = 1;
+    string description = 2;
+    float price = 3;
+    int32 duration = 4;
+}
+message GetServicesResp{
+    Services services = 1;
+}
+message ListAllServicesReq{
+    string name = 1;
+    string description = 2;
+    Filter filter = 3;
+}
+message ListAllServicesResp{
+    repeated Services services = 1;
+}
+
+message UpdateServiceReq{
+    string id = 1;
+    Services services = 2;
+}
+message UpdateServiceResp{
+    Services services = 1;
+}
+message DeleteServiesReq {
+    string id = 1;
+}
+
+message DeleteServiesResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message SearchServicessReq{
+    string name = 1;
+    string description = 2;
+    float price = 3;
+}
+
+message SearchServicessResp{
+    repeated Services services = 1;
+}
+message GetServicesByPriceRangeReq {
+    float min_price = 1;
+    float max_price = 2;
+}
+
+message GetServicesByPriceRangeResp {
+    repeated Services services = 1;
+}
