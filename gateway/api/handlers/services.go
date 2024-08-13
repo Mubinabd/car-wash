@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -27,17 +29,29 @@ func (h *Handlers) AddService(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := h.Clients.Service.AddService(context.Background(), &req)
+
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("cr-service", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Service.AddService(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(500, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	logger.Info("Create Service: Service created successfully: ")
 
 	c.JSON(200, gin.H{"message": "Service created successfully"})
 
 }
+
 // Get service godoc
 // @Summary      Get service
 // @Description  This API Gets a  service
@@ -49,7 +63,7 @@ func (h *Handlers) AddService(c *gin.Context) {
 // @Success      200 {object} pb.GetServicesResp
 // @Failure      400 {object} string "error"
 // @Router       /api/v1/service/{id} [get]
-func (h *Handlers) GetService(c *gin.Context) {
+func (h *Handlers) GetServices(c *gin.Context) {
 	req := pb.GetById{}
 	id := c.Param("id")
 
@@ -57,7 +71,7 @@ func (h *Handlers) GetService(c *gin.Context) {
 
 	res, err := h.Clients.Service.GetServices(context.Background(), &req)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	logger.Info("Get Service: Service retrieved successfully: ", logrus.Fields{
@@ -66,6 +80,7 @@ func (h *Handlers) GetService(c *gin.Context) {
 
 	c.JSON(200, res)
 }
+
 // List all service godoc
 // @Summary      List all service
 // @Description  This API Lists a new service
@@ -123,6 +138,7 @@ func (h *Handlers) ListAllServices(c *gin.Context) {
 	logger.Info("ListAllServices: Service retrieved successfully")
 	c.JSON(200, res)
 }
+
 // Put service godoc
 // @Summary      Put  service
 // @Description  This API Put s a new service
@@ -143,19 +159,31 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 		return
 	}
 
-	_, err := h.Clients.Service.UpdateService(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("up-service", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Service.UpdateService(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
 	logger.Info("update Service: Service retrieved successfully")
 
 	c.JSON(200, gin.H{
 		"message": "updated successfully",
 	})
 }
+
 // Delete service godoc
 // @Summary      Delete service
 // @Description  This API deleted a new service
@@ -172,13 +200,24 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 	id := c.Param("id")
 	req.Id = id
 
-	_, err := h.Clients.Service.DeleteService(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("dl-service", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Service.DeleteService(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
 	logger.Info("delete Service: Service retrieved successfully")
 
 	c.JSON(200, gin.H{
@@ -186,6 +225,7 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 	})
 
 }
+
 // Get service id by service godoc
 // @Summary      Get service
 // @Description  This API gets a  service
@@ -215,6 +255,7 @@ func (h *Handlers) SearchServices(c *gin.Context) {
 	}
 	c.JSON(200, res)
 }
+
 // Get service id by service godoc
 // @Summary      Get service
 // @Description  This API gets a  service
@@ -230,23 +271,32 @@ func (h *Handlers) SearchServices(c *gin.Context) {
 func (h *Handlers) GetServicesByPriceRange(c *gin.Context) {
 	var req pb.GetServicesByPriceRangeReq
 	minpriceSTR := c.Query("min_price")
-	minprice,err := strconv.Atoi(minpriceSTR)
+	if minpriceSTR == "" {
+		minpriceSTR = "0"
+	}
+	minprice, err := strconv.Atoi(minpriceSTR)
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": err.Error(),
+			"error": "Invalid min_price parameter: " + err.Error(),
 		})
 		return
 	}
+
 	maxpriceSTR := c.Query("max_price")
-	maxprice,err := strconv.Atoi(maxpriceSTR)
+	if maxpriceSTR == "" {
+		maxpriceSTR = "0"
+	}
+	maxprice, err := strconv.Atoi(maxpriceSTR)
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": err.Error(),
+			"error": "Invalid max_price parameter: " + err.Error(),
 		})
 		return
 	}
+
 	req.MaxPrice = float32(maxprice)
 	req.MinPrice = float32(minprice)
+
 	res, err := h.Clients.Service.GetServicesByPriceRange(context.Background(), &req)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -254,5 +304,7 @@ func (h *Handlers) GetServicesByPriceRange(c *gin.Context) {
 		})
 		return
 	}
+
 	c.JSON(200, res)
+
 }

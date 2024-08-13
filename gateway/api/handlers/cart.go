@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -9,6 +11,7 @@ import (
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
 )
+
 // @Router 				/api/v1/cart/add [POST]
 // @Summary 			CREATE cart
 // @Description 		This API creates a new cart.
@@ -25,11 +28,21 @@ func (h *Handlers) CreateCart(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := h.Clients.Cart.CreateCart(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("cr-cart", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Cart.CreateCart(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(500, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	logger.Info("Create Cart: Cart created successfully: ")
 

@@ -4,11 +4,10 @@ import (
 	"log/slog"
 
 	kafka "github.com/Mubinabd/car-wash/pkg/kafka/consumer"
-	"github.com/Mubinabd/car-wash/pkg/logger"
 	"github.com/Mubinabd/car-wash/service"
 )
 
-func Reader(brokers []string, kcm *kafka.KafkaConsumerManager, authService *service.AuthService, userService *service.UserService, l *logger.Logger) {
+func Reader(brokers []string, kcm *kafka.KafkaConsumerManager, authService *service.AuthService, userService *service.UserService) {
 
 	if err := kcm.RegisterConsumer(brokers, "reg-user", "auth", kafka.UserRegisterHandler(authService)); err != nil {
 		if err == kafka.ErrConsumerAlreadyExists {

@@ -10,16 +10,15 @@ type Storage interface {
 	Payment() PaymentI
 	Provider() ProviderI
 	Review() ReviewI
-	Service() ServiceI
+	Servicee() ServiceI
 }	
 
 type BookingI interface {
 	AddBooking(req *pb.AddBookingReq) (*pb.Empty, error)
-	GetBooking(req *pb.GetById) (*pb.Booking, error)
+	GetBooking(req *pb.GetById) (*pb.GetBookingResp, error)
 	ListAllBookings(req *pb.ListAllBookingsReq) (*pb.ListAllBookingsResp, error)
 	UpdateBooking(req *pb.UpdateBookingReq) (*pb.UpdateBookingResp, error)
 	DeleteBooking(req *pb.DeleteBookingReq) (*pb.DeleteBookingResp, error)
-	GetBookingsByProvider(req *pb.BookingsByProviderReq) (*pb.BookingsByProviderResp, error)
 }
 
 type CartI interface {
@@ -29,7 +28,7 @@ type CartI interface {
 
 type NotificationI interface {
 	AddNotification(req *pb.AddNotificationReq) (*pb.Empty, error)
-	GetNotifications(req *pb.GetNotificationsReq) (*pb.Notification, error)
+	GetNotifications(req *pb.GetNotificationsReq) (*pb.GetNotificationsResp, error)
 	MarkNotificationAsRead(req *pb.MarkNotificationAsReadReq) (*pb.MarkNotificationAsReadResp, error)
 }
 
@@ -41,7 +40,7 @@ type PaymentI interface {
 
 type ProviderI interface {
 	RegisterProvider(req *pb.RegisterProviderReq) (*pb.Empty, error)
-	GetProvider(req *pb.GetById) (*pb.Provider, error)
+	GetProvider(req *pb.GetById) (*pb.GetProviderResp, error)
 	ListAllProviders(req *pb.ListAllProvidersReq) (*pb.ListAllProvidersResp, error)
 	UpdateProvider(req *pb.UpdateProviderReq) (*pb.UpdateProviderResp, error)
 	DeleteProvider(req *pb.DeleteProviderReq) (*pb.DeleteProviderResp, error)
@@ -58,7 +57,7 @@ type ReviewI interface {
 
 type ServiceI interface {
 	AddService(req *pb.AddServiceReq) (*pb.Empty, error)
-	GetService(req *pb.GetById) (*pb.Services, error)
+	GetServices(req *pb.GetById) (*pb.GetServicesResp, error)
 	ListAllServices(req *pb.ListAllServicesReq) (*pb.ListAllServicesResp, error)
 	UpdateService(req *pb.UpdateServiceReq) (*pb.UpdateServiceResp, error)
 	DeleteService(req *pb.DeleteServiesReq) (*pb.DeleteServiesResp, error)

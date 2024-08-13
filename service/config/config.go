@@ -34,7 +34,7 @@ func Load() Config {
 
   config.HTTPPort = cast.ToString(GetOrReturnDefaultValue("HTTP_PORT", "27017"))
 
-  config.MONGOHOST = cast.ToString(GetOrReturnDefaultValue("MONGOHOST", "localhost"))
+  config.MONGOHOST = cast.ToString(GetOrReturnDefaultValue("MONGOHOST", "mongo-db"))
   config.MONGOPORT = cast.ToInt(GetOrReturnDefaultValue("MONGOPORT", 5432))
   config.MONGOUSER = cast.ToString(GetOrReturnDefaultValue("MONGOUSER", "mubina"))
   config.MONGOPASSWORD = cast.ToString(GetOrReturnDefaultValue("MONGOPASSWORD", "1234"))

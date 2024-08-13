@@ -86,7 +86,6 @@ func (h *Handlers) GetPayment(c *gin.Context) {
 // @Tags          carwash/Payment
 // @Accept        json
 // @Produce       json
-// @Param         booking_id query string false "Booking ID"
 // @Param         status query string false "Status"
 // @Param         limit query int false "Limit"
 // @Param         offset query int false "Offset"
@@ -94,12 +93,10 @@ func (h *Handlers) GetPayment(c *gin.Context) {
 // @Failure       400 {object} string "error": "error message"
 func (h *Handlers) ListAllPayments(c *gin.Context) {
 	var req pb.ListAllPaymentsReq
-	booking_id := c.Query("booking_id")
 	status := c.Query("status")
 	limit := c.Query("limit")
 	offset := c.Query("offset")
 
-	req.BookingId = booking_id
 	req.Status = status
 
 	if limit != "" {

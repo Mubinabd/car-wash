@@ -8,7 +8,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	token "github.com/Mubinabd/car-wash/internal/http/token"
+	token "github.com/Mubinabd/car-wash/api/token"
 )
 
 const (

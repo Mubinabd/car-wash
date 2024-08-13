@@ -19,16 +19,19 @@ import (
 
 
 type ProviderManager struct {
-    col *mongo.Collection
+	col *mongo.Collection
 }
 
-func NewProviderManager(db *mongo.Database) *ProviderManager {
+func NewProviderManager(col *mongo.Database) *ProviderManager {
     return &ProviderManager{
-        col: db.Collection("provider"),
+        col: col.Collection("provider"),
     }
 }
 
 func (p *ProviderManager) RegisterProvider(req *pb.RegisterProviderReq) (*pb.Empty, error) {
+	if p.col == nil {
+		return nil, fmt.Errorf("collection is not initialized")
+	}
 	res, err := p.col.InsertOne(context.Background(), req)
 
     if err != nil {
@@ -45,24 +48,25 @@ func (p *ProviderManager) RegisterProvider(req *pb.RegisterProviderReq) (*pb.Emp
     return &pb.Empty{}, nil
 }
 
-func (p *ProviderManager) GetProvider(req *pb.GetById) (*pb.Provider, error) {
-	var provider pb.Provider
-	collection := p.col.Database().Collection("provider")
-	filter := bson.M{"id": req.Id}
+func (p *ProviderManager) GetProvider(req *pb.GetById) (*pb.GetProviderResp, error) {
+    if req.Id == "" {
+        return nil, errors.New("id cannot be empty")
+    }
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&provider)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no provider found with the given ID")
-		}
-		return nil, err
-	}
-	logger.Info("Provider retrieved successfully", logrus.Fields{
-		"provider_id":  provider.Id,
-		"company_name": provider.CompanyName,
-	})
+    oid, err := primitive.ObjectIDFromHex(req.Id)
+    if err != nil {
+        return nil, errors.New("invalid ID format")
+    }
 
-	return &provider, nil
+    var provider pb.Provider
+    err = p.col.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&provider)
+    if err == mongo.ErrNoDocuments {
+        return nil, errors.New("provider not found")
+    } else if err != nil {
+        return nil, err
+    }
+
+    return &pb.GetProviderResp{Provider: &provider}, nil
 }
 
 func (p *ProviderManager) ListAllProviders(req *pb.ListAllProvidersReq) (*pb.ListAllProvidersResp, error) {
@@ -130,30 +134,35 @@ func (p *ProviderManager) DeleteProvider(req *pb.DeleteProviderReq) (*pb.DeleteP
 }
 
 func (p *ProviderManager) UpdateProvider(req *pb.UpdateProviderReq) (*pb.UpdateProviderResp, error) {
-	filter := bson.M{"id": req.Id}
+    oid, err := primitive.ObjectIDFromHex(req.Id)
+    if err != nil {
+        return nil, errors.New("invalid ID format")
+    }
 
-	update := bson.M{"$set": req.Provider}
+    filter := bson.M{"_id": oid}  
 
-	result, err := p.col.UpdateOne(context.TODO(), filter, update)
-	if err != nil {
-		return nil, err
-	}
+    update := bson.M{"$set": req.Provider}
 
-	if result.MatchedCount == 0 {
-		return nil, fmt.Errorf("provider with ID %s not found", req.Id)
-	}
+    result, err := p.col.UpdateOne(context.TODO(), filter, update)
+    if err != nil {
+        return nil, err
+    }
 
-	logger.Info("Provider updated successfully", logrus.Fields{
-		"provider_id": req.Id,
-	})
+    if result.MatchedCount == 0 {
+        return nil, fmt.Errorf("provider with ID %s not found", req.Id)
+    }
 
-	var updatedProvider pb.Provider
-	err = p.col.FindOne(context.TODO(), filter).Decode(&updatedProvider)
-	if err != nil {
-		return nil, err
-	}
+    logger.Info("Provider updated successfully", logrus.Fields{
+        "provider_id": req.Id,
+    })
 
-	return &pb.UpdateProviderResp{Provider: &updatedProvider}, nil
+    var updatedProvider pb.Provider
+    err = p.col.FindOne(context.TODO(), filter).Decode(&updatedProvider)
+    if err != nil {
+        return nil, err
+    }
+
+    return &pb.UpdateProviderResp{Provider: &updatedProvider}, nil
 }
 
 func (p *ProviderManager) SearchProviders(req *pb.SearchProvidersReq) (*pb.SearchProvidersResp, error) {

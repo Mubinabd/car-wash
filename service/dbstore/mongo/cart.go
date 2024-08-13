@@ -1,12 +1,11 @@
 package mongo
+
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/Mubinabd/car-wash/logger"
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,9 +17,9 @@ type CartManager struct {
 	collec *mongo.Collection
 }
 
-func NewCartManager(db *mongo.Database) *CartManager {
+func NewCartManager(collec *mongo.Database) *CartManager {
 	return &CartManager{
-		collec: db.Collection("cart"),
+		collec: collec.Collection("cart"),
 	}
 }
 
@@ -44,19 +43,22 @@ func (c *CartManager) CreateCart(req *pb.CreateCartReq) (*pb.Empty, error) {
 
 func (c *CartManager) GetCart(req *pb.GetById) (*pb.Cart, error) {
 
-	var cart pb.Cart
-	collection := c.collec.Database().Collection("cart")
-	filter := bson.M{"id": req.Id}
+	if req.Id == "" {
+		return nil, errors.New("id cannot be empty")
+	}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&cart)
+	oid, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no booking found with the given ID")
-		}
+		return nil, errors.New("invalid ID format")
+	}
+
+	var cart pb.Cart
+	err = c.collec.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&cart)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("booking not found")
+	} else if err != nil {
 		return nil, err
 	}
-	logger.Info("Cart retrieved successfully", logrus.Fields{
-		"cart_id": cart.Id,
-	})
+
 	return &cart, nil
 }

@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-option go_package = "genproto";
+option go_package = "genproto/";
 
 package car_wash;
 
 import "protos/common.proto";
 service ProviderService {
-    rpc RegisterProvider(RegisterProviderReq) returns (RegisterProviderResp);
+    rpc RegisterProvider(RegisterProviderReq) returns (Empty);
     rpc GetProvider(GetById) returns (GetProviderResp);
     rpc ListAllProviders(ListAllProvidersReq) returns (ListAllProvidersResp);
     rpc UpdateProvider(UpdateProviderReq) returns (UpdateProviderResp);
@@ -35,10 +35,6 @@ message RegisterProviderReq {
     string availability = 5; 
     float average_rating = 6;
     GeoPoint location = 7; 
-}
-
-message RegisterProviderResp {
-    Provider provider = 1;
 }
 
 message GetProviderResp{

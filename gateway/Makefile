@@ -23,4 +23,4 @@ gen-protoAll:
 
 
 swag-gen:
-	~/go/bin/swag init -g ./internal/http/router.go -o docs force 1	
+	~/go/bin/swag init -g ./api/router.go -o docs force 1	

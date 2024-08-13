@@ -8,23 +8,23 @@ import (
 
 type PaymentService struct {
 	pb.UnimplementedPaymentServiceServer
-	Repo dbstore.Storage
+	repo dbstore.Storage
 }
 
 func NewPaymentService(repo dbstore.Storage) *PaymentService {
 	return &PaymentService{
-		Repo: repo,
+		repo: repo,
 	}
 }
 
 func (s *PaymentService) AddPayment(ctx context.Context, req *pb.AddPaymentReq) (*pb.Empty, error) {
-	return s.Repo.Payment().AddPayment(req)
+	return s.repo.Payment().AddPayment(req)
 }
 
 func (s *PaymentService) GetPayment(ctx context.Context, req *pb.GetById) (*pb.GetPaymentResp, error) {
-	return s.Repo.Payment().GetPayment(req)
+	return s.repo.Payment().GetPayment(req)
 }
 
 func (s *PaymentService) ListAllPayments(ctx context.Context, req *pb.ListAllPaymentsReq) (*pb.ListAllPaymentsResp, error) {
-	return s.Repo.Payment().ListAllPayments(req)
+	return s.repo.Payment().ListAllPayments(req)
 }

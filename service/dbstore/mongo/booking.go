@@ -3,8 +3,6 @@ package mongo
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 
 	"github.com/Mubinabd/car-wash/logger"
 	"github.com/sirupsen/logrus"
@@ -17,52 +15,36 @@ import (
 )
 
 type BookingManager struct {
-	collec             *mongo.Collection
+	collec              *mongo.Collection
 	notificationManager *NotificationManager
 }
 
 func NewBookingManager(collec *mongo.Database, notificationManager *NotificationManager) *BookingManager {
 	return &BookingManager{
-		collec: collec.Collection("bookings"),
+		collec:              collec.Collection("bookings"),
 		notificationManager: notificationManager,
 	}
 }
 
-
 func (r *BookingManager) AddBooking(req *pb.AddBookingReq) (*pb.Empty, error) {
 	ctx := context.Background()
-	session, err := r.collec.Database().Client().StartSession()
+
+	res, err := r.collec.InsertOne(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	defer session.EndSession(ctx)
 
-	transactionOperation := func(sessionContext mongo.SessionContext) (interface{}, error) {
-		res, err := r.collec.InsertOne(sessionContext, req)
-		if err != nil {
-			return nil, err
-		}
-
-		if _, ok := res.InsertedID.(primitive.ObjectID); !ok {
-			return nil, errors.New("failed to convert InsertedID to ObjectID")
-		}
-
-		notificationReq := &pb.AddNotificationReq{
-			UserId:   req.UserId,
-			Message:  "Your booking has been successfully created!",
-			BookingId: res.InsertedID.(primitive.ObjectID).Hex(),
-		}
-
-		_, err = r.notificationManager.AddNotification(notificationReq)
-		if err != nil {
-			return nil, err
-		}
-
-		return nil, nil
+	if _, ok := res.InsertedID.(primitive.ObjectID); !ok {
+		return nil, errors.New("failed to convert InsertedID to ObjectID")
 	}
-	_, err = session.WithTransaction(ctx, transactionOperation)
+
+	notificationReq := &pb.AddNotificationReq{
+		UserId:  req.UserId,
+		Message: "Your booking has been successfully created!",
+	}
+
+	_, err = r.notificationManager.AddNotification(notificationReq)
 	if err != nil {
-		log.Println("Transaction failed:", err)
 		return nil, err
 	}
 
@@ -71,38 +53,35 @@ func (r *BookingManager) AddBooking(req *pb.AddBookingReq) (*pb.Empty, error) {
 	return &pb.Empty{}, nil
 }
 
-func (r *BookingManager) GetBooking(req *pb.GetById) (*pb.Booking, error) {
-	var booking pb.Booking
-	collection := r.collec.Database().Collection("bookings")
-	filter := bson.M{"id": req.Id}
+func (r *BookingManager) GetBooking(req *pb.GetById) (*pb.GetBookingResp, error) {
+	if req.Id == "" {
+		return nil, errors.New("id cannot be empty")
+	}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&booking)
+	oid, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no booking found with the given ID")
-		}
+		return nil, errors.New("invalid ID format")
+	}
+
+	var booking pb.Booking
+	err = r.collec.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&booking)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("booking not found")
+	} else if err != nil {
 		return nil, err
 	}
-	logger.Info("Booking retrieved successfully", logrus.Fields{
-		"booking_id": booking.Id,
-	})
-	return &booking, nil
+
+	return &pb.GetBookingResp{Booking: &booking}, nil
 }
 
 func (r *BookingManager) ListAllBookings(req *pb.ListAllBookingsReq) (*pb.ListAllBookingsResp, error) {
 	var bookings []*pb.Booking
-	collection := r.collec.Database().Collection("bookings")
 	filter := bson.M{}
 
 	if req.Status != "" {
 		filter["status"] = req.Status
 	}
-	if req.UserId != "" {
-		filter["user_id"] = req.UserId
-	}
-	if req.ProviderId != "" {
-		filter["provider_id"] = req.ProviderId
-	}
+	
 	limit := int64(10)
 	offset := int64(0)
 
@@ -115,7 +94,7 @@ func (r *BookingManager) ListAllBookings(req *pb.ListAllBookingsReq) (*pb.ListAl
 		}
 	}
 
-	cursor, err := collection.Find(context.TODO(), len(filter),
+	cursor, err := r.collec.Find(context.TODO(), filter,
 		options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		return nil, err
@@ -129,16 +108,41 @@ func (r *BookingManager) ListAllBookings(req *pb.ListAllBookingsReq) (*pb.ListAl
 		}
 		bookings = append(bookings, &booking)
 	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
 	return &pb.ListAllBookingsResp{Bookings: bookings}, nil
 }
 
 func (r *BookingManager) UpdateBooking(req *pb.UpdateBookingReq) (*pb.UpdateBookingResp, error) {
-	filter := bson.M{"id": req.Id}
-	update := bson.M{"$set": req}
+	oid, err := primitive.ObjectIDFromHex(req.Id)
+	if err != nil {
+		return nil, errors.New("invalid ID format")
+	}
+
+	filter := bson.M{"_id": oid}
+
+	update := bson.M{
+		"$set": bson.M{
+			"provider_id":   req.Booking.ProviderId,
+			"service_id":    req.Booking.ServiceId,
+			"location":      req.Booking.Location,
+			"schudule_time": req.Booking.SchuduleTime,
+			"status":        req.Booking.Status,
+			"total_price":   req.Booking.TotalPrice,
+			"updated_at":    req.Booking.UpdatedAt,
+		},
+	}
 
 	result, err := r.collec.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return nil, err
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, errors.New("no matching document found to update")
 	}
 
 	var updatedBooking pb.Booking
@@ -146,11 +150,14 @@ func (r *BookingManager) UpdateBooking(req *pb.UpdateBookingReq) (*pb.UpdateBook
 	if err != nil {
 		return nil, err
 	}
+
 	logger.Info("Booking updated successfully", logrus.Fields{
 		"count": result.ModifiedCount,
 	})
-	return &pb.UpdateBookingResp{Success: true,Message: "Booking updated successfully"}, nil
+
+	return &pb.UpdateBookingResp{Success: true, Message: "Booking updated successfully"}, nil
 }
+
 
 func (r *BookingManager) DeleteBooking(req *pb.DeleteBookingReq) (*pb.DeleteBookingResp, error) {
 	filter := bson.M{"id": req.Id}
@@ -162,28 +169,4 @@ func (r *BookingManager) DeleteBooking(req *pb.DeleteBookingReq) (*pb.DeleteBook
 		"booking_id": req.Id,
 	})
 	return &pb.DeleteBookingResp{}, nil
-}
-
-func(r *BookingManager) GetBookingsByProvider(req *pb.BookingsByProviderReq) (*pb.BookingsByProviderResp, error) {
-
-	var bookings []*pb.Booking
-	collection := r.collec
-	filter := bson.M{"provider_id": req.ProviderId}
-
-	cursor, err := collection.Find(context.TODO(), filter)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.TODO())
-
-	for cursor.Next(context.TODO()) {	
-		var booking pb.Booking
-		if err := cursor.Decode(&booking); err != nil {
-			return nil, err
-		}
-		bookings = append(bookings, &booking)
-	}
-
-	return &pb.BookingsByProviderResp{Bookings: bookings}, nil	
-
 }

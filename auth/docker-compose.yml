@@ -7,13 +7,17 @@ services:
       - mynetwork
     volumes:
       - ./migrations:/migrations
-    command: ["-path", "/migrations", "-database", "postgres://postgres:1234@localhost:5432/postgres?sslmode=disable", "up"]
+    command: ["-path", "/migrations", "-database", "postgres://postgres:1234@auth-service:5432/postgres?sslmode=disable", "up"]
+    depends_on:
+      - auth-service
+    entrypoint: ["/bin/sh", "-c", "until nc -z auth-service 5432; do echo waiting for auth-service; sleep 2; done; migrate -path /migrations -database postgres://postgres:1234@auth-service:5432/postgres?sslmode=disable up"]
+
 
   redis:
     image: "redis:latest"
     container_name: redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - mynetwork
 
@@ -24,7 +28,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 22181:2181
+      - "22182:2181"
     networks:
       - mynetwork
 
@@ -34,7 +38,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29096:29092"
     networks:
       - mynetwork
     environment:
@@ -45,19 +49,18 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  
+
   auth-service:
     container_name: auth
     build: .
     depends_on:
       - kafka
-
     ports:
       - "8090:8090"
     networks:
       - mynetwork
     environment:
-      - DB_HOST=postgres-db
+      - DB_HOST=auth
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=1234

@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion8
 
 const (
 	ServicesService_AddService_FullMethodName              = "/car_wash.ServicesService/AddService"
-	ServicesService_GetService_FullMethodName              = "/car_wash.ServicesService/GetService"
+	ServicesService_GetServices_FullMethodName             = "/car_wash.ServicesService/GetServices"
 	ServicesService_ListAllServices_FullMethodName         = "/car_wash.ServicesService/ListAllServices"
 	ServicesService_UpdateService_FullMethodName           = "/car_wash.ServicesService/UpdateService"
 	ServicesService_DeleteService_FullMethodName           = "/car_wash.ServicesService/DeleteService"
@@ -33,7 +33,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServicesServiceClient interface {
 	AddService(ctx context.Context, in *AddServiceReq, opts ...grpc.CallOption) (*Empty, error)
-	GetService(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Services, error)
+	GetServices(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetServicesResp, error)
 	ListAllServices(ctx context.Context, in *ListAllServicesReq, opts ...grpc.CallOption) (*ListAllServicesResp, error)
 	UpdateService(ctx context.Context, in *UpdateServiceReq, opts ...grpc.CallOption) (*UpdateServiceResp, error)
 	DeleteService(ctx context.Context, in *DeleteServiesReq, opts ...grpc.CallOption) (*DeleteServiesResp, error)
@@ -59,10 +59,10 @@ func (c *servicesServiceClient) AddService(ctx context.Context, in *AddServiceRe
 	return out, nil
 }
 
-func (c *servicesServiceClient) GetService(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Services, error) {
+func (c *servicesServiceClient) GetServices(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetServicesResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Services)
-	err := c.cc.Invoke(ctx, ServicesService_GetService_FullMethodName, in, out, cOpts...)
+	out := new(GetServicesResp)
+	err := c.cc.Invoke(ctx, ServicesService_GetServices_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *servicesServiceClient) GetServicesByPriceRange(ctx context.Context, in 
 // for forward compatibility
 type ServicesServiceServer interface {
 	AddService(context.Context, *AddServiceReq) (*Empty, error)
-	GetService(context.Context, *GetById) (*Services, error)
+	GetServices(context.Context, *GetById) (*GetServicesResp, error)
 	ListAllServices(context.Context, *ListAllServicesReq) (*ListAllServicesResp, error)
 	UpdateService(context.Context, *UpdateServiceReq) (*UpdateServiceResp, error)
 	DeleteService(context.Context, *DeleteServiesReq) (*DeleteServiesResp, error)
@@ -140,8 +140,8 @@ type UnimplementedServicesServiceServer struct {
 func (UnimplementedServicesServiceServer) AddService(context.Context, *AddServiceReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
-func (UnimplementedServicesServiceServer) GetService(context.Context, *GetById) (*Services, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
+func (UnimplementedServicesServiceServer) GetServices(context.Context, *GetById) (*GetServicesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetServices not implemented")
 }
 func (UnimplementedServicesServiceServer) ListAllServices(context.Context, *ListAllServicesReq) (*ListAllServicesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAllServices not implemented")
@@ -189,20 +189,20 @@ func _ServicesService_AddService_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServicesService_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_GetServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetById)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServiceServer).GetService(ctx, in)
+		return srv.(ServicesServiceServer).GetServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServicesService_GetService_FullMethodName,
+		FullMethod: ServicesService_GetServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).GetService(ctx, req.(*GetById))
+		return srv.(ServicesServiceServer).GetServices(ctx, req.(*GetById))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -309,8 +309,8 @@ var ServicesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServicesService_AddService_Handler,
 		},
 		{
-			MethodName: "GetService",
-			Handler:    _ServicesService_GetService_Handler,
+			MethodName: "GetServices",
+			Handler:    _ServicesService_GetServices_Handler,
 		},
 		{
 			MethodName: "ListAllServices",

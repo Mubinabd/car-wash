@@ -37,20 +37,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "description": "Status",
                         "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Provider ID",
-                        "name": "provider_id",
                         "in": "query"
                     },
                     {
@@ -116,55 +104,6 @@ const docTemplate = `{
                         "description": "message\": \"booking created successfully",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "error\": \"error description",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "error\": \"error description",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/booking/provider": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "This API retrieves bookings for a specific provider",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "carwash/booking"
-                ],
-                "summary": "Get bookings by provider",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Provider ID",
-                        "name": "provider_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/genproto.BookingsByProviderResp"
                         }
                     },
                     "400": {
@@ -462,44 +401,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/notification/{id}": {
-            "get": {
-                "description": "This API retrieves a notification by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "carwash/Notification"
-                ],
-                "summary": "GET notification",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Notification ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/genproto.GetNotificationsResp"
-                        }
-                    },
-                    "400": {
-                        "description": "error\": \"error message",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/notification/{id}/read": {
             "put": {
                 "security": [
@@ -559,12 +460,6 @@ const docTemplate = `{
                 ],
                 "summary": "GET all Payments",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Booking ID",
-                        "name": "booking_id",
-                        "in": "query"
-                    },
                     {
                         "type": "string",
                         "description": "Status",
@@ -1541,13 +1436,13 @@ const docTemplate = `{
                 "booking_id": {
                     "type": "string"
                 },
+                "cart_id": {
+                    "type": "string"
+                },
                 "payment_method": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "transaction_id": {
                     "type": "string"
                 }
             }
@@ -1605,13 +1500,13 @@ const docTemplate = `{
                     "$ref": "#/definitions/genproto.GeoPoint"
                 },
                 "provider_id": {
-                    "$ref": "#/definitions/genproto.Provider"
+                    "type": "string"
                 },
                 "schudule_time": {
                     "type": "string"
                 },
                 "service_id": {
-                    "$ref": "#/definitions/genproto.Services"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -1627,17 +1522,6 @@ const docTemplate = `{
                 }
             }
         },
-        "genproto.BookingsByProviderResp": {
-            "type": "object",
-            "properties": {
-                "bookings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/genproto.Booking"
-                    }
-                }
-            }
-        },
         "genproto.Cart": {
             "type": "object",
             "properties": {
@@ -1648,7 +1532,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "service_id": {
-                    "$ref": "#/definitions/genproto.Services"
+                    "type": "string"
                 },
                 "total": {
                     "type": "integer"
@@ -1691,17 +1575,6 @@ const docTemplate = `{
             "properties": {
                 "booking": {
                     "$ref": "#/definitions/genproto.Booking"
-                }
-            }
-        },
-        "genproto.GetNotificationsResp": {
-            "type": "object",
-            "properties": {
-                "notifications": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/genproto.Notification"
-                    }
                 }
             }
         },
@@ -1795,26 +1668,6 @@ const docTemplate = `{
                 }
             }
         },
-        "genproto.Notification": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_read": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "genproto.Payment": {
             "type": "object",
             "properties": {
@@ -1822,7 +1675,10 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "booking_id": {
-                    "$ref": "#/definitions/genproto.Booking"
+                    "type": "string"
+                },
+                "cart_id": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -1837,9 +1693,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "transaction_id": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -1921,7 +1774,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "booking_id": {
-                    "$ref": "#/definitions/genproto.Booking"
+                    "type": "string"
                 },
                 "comment": {
                     "type": "string"
@@ -1936,7 +1789,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "provider_id": {
-                    "$ref": "#/definitions/genproto.Provider"
+                    "type": "string"
                 },
                 "rating": {
                     "type": "integer"
@@ -2028,8 +1881,8 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "services": {
-                    "$ref": "#/definitions/genproto.Services"
+                "name": {
+                    "type": "string"
                 }
             }
         }

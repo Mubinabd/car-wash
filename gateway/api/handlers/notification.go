@@ -6,7 +6,6 @@ import (
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // @Router        /api/v1/notification/add [POST]
@@ -50,33 +49,6 @@ func (h *Handlers) AddNotification(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "created successfully",
 	})
-}
-
-// @Router        /api/v1/notification/{id} [GET]
-// @Summary       GET notification
-// @Description   This API retrieves a notification by ID
-// @Tags          carwash/Notification
-// @Accept        json
-// @Produce       json
-// @Param         id path string true "Notification ID"
-// @Success       200 {object} pb.GetNotificationsResp
-// @Failure       400 {object} string "error": "error message"
-func (h *Handlers) GetNotifications(c *gin.Context) {
-	var req pb.GetNotificationsReq
-	id := c.Param("id")
-	req.UserId = id
-	res, err := h.Clients.Notification.GetNotifications(context.Background(), &req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	logger.Info("Get Notification: notification retrieved successfully: ", logrus.Fields{
-		"Notification_id": res.Notifications[0].Id,
-	})
-	c.JSON(200, res)
 }
 
 // @Router        /api/v1/notification/{id}/read [PUT]

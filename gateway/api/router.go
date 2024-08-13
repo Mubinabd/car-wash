@@ -1,13 +1,17 @@
 package http
 
 import (
+	"log"
+
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"github.com/Mubinabd/car-wash/api/handlers"
+	middlerware "github.com/Mubinabd/car-wash/api/middleware"
 	_ "github.com/Mubinabd/car-wash/docs"
-	"github.com/Mubinabd/car-wash/internal/http/handlers"
 )
 
 // @title           Swagger Example API
@@ -21,6 +25,14 @@ import (
 // @description                 Description for what is this security definition being used
 func NewRouter(h *handlers.Handlers) *gin.Engine {
 	router := gin.Default()
+
+	enforcer, err := casbin.NewEnforcer("./load/model.conf", "./load/policy.csv")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	sw := router.Group("/")
+	sw.Use(middlerware.NewAuth(enforcer))
 
 	// CORS configuration
 	corsConfig := cors.Config{
@@ -48,7 +60,7 @@ func NewRouter(h *handlers.Handlers) *gin.Engine {
 		services := v1.Group("/service")
 		{
 			services.POST("/add", h.AddService)
-			services.GET("/:id", h.GetService)
+			services.GET("/:id", h.GetServices)
 			services.GET("", h.ListAllServices)
 			services.PUT("/:id", h.UpdateService)
 			services.GET("/search", h.SearchServices)
@@ -84,7 +96,6 @@ func NewRouter(h *handlers.Handlers) *gin.Engine {
 			booking.GET("", h.ListAllBookings)
 			booking.PUT("/:id", h.UpdateBooking)
 			booking.DELETE("/:id", h.DeleteBooking)
-			booking.GET("/:id/provider", h.GetBookingsByProvider)
 		}
 
 		// Payment routes
@@ -99,7 +110,6 @@ func NewRouter(h *handlers.Handlers) *gin.Engine {
 		notification := v1.Group("/notification")
 		{
 			notification.POST("/add", h.AddNotification)
-			notification.GET("/:id", h.GetNotifications)
 			notification.PUT("/:id/read", h.MarkNotificationAsRead)
 		}
 	}

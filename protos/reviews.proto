@@ -1,12 +1,10 @@
 syntax="proto3";
 
-option go_package = "genproto";
+option go_package = "genproto/";
 
 package car_wash;
 
 import "protos/common.proto";
-import "protos/bookings.proto";
-import "protos/providers.proto";
 
 service ReviewService{
     rpc AddReview(AddReviewReq) returns (Empty);
@@ -17,9 +15,9 @@ service ReviewService{
 }
 message Review {
     string id = 1;
-    Booking booking_id = 2;
+    string booking_id = 2;
     string user_id = 3;
-    Provider provider_id = 4;
+    string provider_id = 4;
     int32 rating = 5;
     string comment = 6;
     string created_at = 7;

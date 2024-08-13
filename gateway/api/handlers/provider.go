@@ -2,6 +2,9 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +13,7 @@ import (
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
 )
+
 // @Router        /api/v1/provider/add [POST]
 // @Summary       CREATE provider
 // @Description   This API creates a provider
@@ -21,22 +25,34 @@ import (
 // @Success       200 {object} string "message": "created successfully"
 // @Failure       400 {object} string "error": "error message"
 func (h *Handlers) RegisterProvider(c *gin.Context) {
-	req := pb.RegisterProviderReq{}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	var req pb.RegisterProviderReq
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := h.Clients.ProviderClient.RegisterProvider(context.Background(), &req)
+
+	if h.Clients.ProviderClient == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ProviderClient is not initialized"})
+		return
+	}
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("cr-provider", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+	// _, err := h.Clients.ProviderClient.RegisterProvider(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
-	logger.Info("Create Provider: provider created successfully: ")
-
-	c.JSON(200, gin.H{"message": "Provider created successfully"})
-
+	c.JSON(http.StatusOK, gin.H{"message": "Provider registered successfully"})
 }
+
 // Get provider godoc
 // @Summary      Get provider
 // @Description  This API Gets a  provider
@@ -56,15 +72,17 @@ func (h *Handlers) GetProvider(c *gin.Context) {
 
 	res, err := h.Clients.ProviderClient.GetProvider(context.Background(), &req)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	logger.Info("Get Provider: provider retrieved successfully: ", logrus.Fields{
+
+	logger.Info("Get Provider: provider retrieved successfully", logrus.Fields{
 		"provider_id": res.Provider.Id,
 	})
 
 	c.JSON(200, res)
 }
+
 // List all provider godoc
 // @Summary      List all provider
 // @Description  This API Lists a new provider
@@ -122,6 +140,7 @@ func (h *Handlers) ListAllProviders(c *gin.Context) {
 	logger.Info("ListAllProviders: provider retrieved successfully")
 	c.JSON(200, res)
 }
+
 // Put provider godoc
 // @Summary      Put  provider
 // @Description  This API Put s a new provider
@@ -142,19 +161,30 @@ func (h *Handlers) UpdateProvider(c *gin.Context) {
 		return
 	}
 
-	_, err := h.Clients.ProviderClient.UpdateProvider(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("up-provider", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.ProviderClient.UpdateProvider(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 	logger.Info("update provider: provider retrieved successfully")
 
 	c.JSON(200, gin.H{
 		"message": "updated successfully",
 	})
 }
+
 // Delete provider godoc
 // @Summary      Delete provider
 // @Description  This API deleted a new provider
@@ -171,13 +201,23 @@ func (h *Handlers) DeleteProvider(c *gin.Context) {
 	id := c.Param("id")
 	req.Id = id
 
-	_, err := h.Clients.ProviderClient.DeleteProvider(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("dl-provider", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.ProviderClient.DeleteProvider(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 	logger.Info("delete provider: provider retrieved successfully")
 
 	c.JSON(200, gin.H{
@@ -185,6 +225,7 @@ func (h *Handlers) DeleteProvider(c *gin.Context) {
 	})
 
 }
+
 // Get Provider id by provider godoc
 // @Summary      Get provider
 // @Description  This API gets a  provider

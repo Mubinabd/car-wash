@@ -11,7 +11,7 @@ import (
 )
 
 type StorageMongo struct {
-	DB            *mongo.Database
+	mongo         *mongo.Database
 	BookingS      dbstore.BookingI
 	CartS         dbstore.CartI
 	NotificationS dbstore.NotificationI
@@ -22,17 +22,14 @@ type StorageMongo struct {
 }
 
 func ConnectMongo() (dbstore.Storage, error) {
-
-	uri := fmt.Sprintf("mongodb://%s:%d",
-		"localhost",
-		27017,
-	)
+	uri := fmt.Sprintf("mongodb://%s:%d", "mongo-db", 27017)
 	clientOptions := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		return nil, err
 	}
+
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		return nil, err
@@ -40,19 +37,21 @@ func ConnectMongo() (dbstore.Storage, error) {
 
 	slog.Info("Connected to MongoDB")
 
-	mongo := client.Database("carwash")
-	fmt.Println(mongo)
+	database := client.Database("carwash")
+	slog.Info("Database accessed successfully")
 
-	providerManager := NewProviderManager(mongo)
-	cartManager := NewCartManager(mongo)
-	notificationManager := NewNotificationManager(mongo)
-	paymentManager := NewPaymentsManager(mongo)
-	bookingManager := NewBookingManager(mongo, notificationManager)
-	reviewManager := NewReviewsManager(mongo)
-	serviceManager := NewServicesManager(mongo)
+	slog.Info("Test document inserted")
+
+	providerManager := NewProviderManager(database)
+	cartManager := NewCartManager(database)
+	notificationManager := NewNotificationManager(database)
+	paymentManager := NewPaymentsManager(database,notificationManager)
+	bookingManager := NewBookingManager(database, notificationManager)
+	reviewManager := NewReviewsManager(database)
+	serviceManager := NewServicesManager(database)
 
 	return &StorageMongo{
-		DB:            mongo,
+		mongo:         database,
 		BookingS:      bookingManager,
 		CartS:         cartManager,
 		PaymentS:      paymentManager,
@@ -62,48 +61,49 @@ func ConnectMongo() (dbstore.Storage, error) {
 		ServiceS:      serviceManager,
 	}, nil
 }
+
 func (s *StorageMongo) Booking() dbstore.BookingI {
 	if s.BookingS == nil {
-		notificationManager := NewNotificationManager(s.DB)
-		s.BookingS = NewBookingManager(s.DB, notificationManager)
+		notificationManager := NewNotificationManager(s.mongo)
+		s.BookingS = NewBookingManager(s.mongo, notificationManager)
 	}
 	return s.BookingS
 }
 
 func (s *StorageMongo) Cart() dbstore.CartI {
 	if s.CartS == nil {
-		s.CartS = NewCartManager(s.DB)
+		s.CartS = NewCartManager(s.mongo)
 	}
 	return s.CartS
 }
 
 func (s *StorageMongo) Notification() dbstore.NotificationI {
 	if s.NotificationS == nil {
-		s.NotificationS = NewNotificationManager(s.DB)
+		s.NotificationS = NewNotificationManager(s.mongo)
 	}
 	return s.NotificationS
 }
 func (s *StorageMongo) Payment() dbstore.PaymentI {
 	if s.PaymentS == nil {
-		s.PaymentS = NewPaymentsManager(s.DB)
+		s.PaymentS = NewPaymentsManager(s.mongo,NewNotificationManager(s.mongo))
 	}
 	return s.PaymentS
 }
 func (s *StorageMongo) Provider() dbstore.ProviderI {
 	if s.ProviderS == nil {
-		s.ProviderS = NewProviderManager(s.DB)
+		s.ProviderS = NewProviderManager(s.mongo)
 	}
 	return s.ProviderS
 }
 func (s *StorageMongo) Review() dbstore.ReviewI {
 	if s.ReviewS == nil {
-		s.ReviewS = NewReviewsManager(s.DB)
+		s.ReviewS = NewReviewsManager(s.mongo)
 	}
 	return s.ReviewS
 }
-func (s *StorageMongo) Service() dbstore.ServiceI {
+func (s *StorageMongo) Servicee() dbstore.ServiceI {
 	if s.ServiceS == nil {
-		s.ServiceS = NewServicesManager(s.DB)
+		s.ServiceS = NewServicesManager(s.mongo)
 	}
 	return s.ServiceS
 }

@@ -8,23 +8,23 @@ import (
 
 type NotificationService struct {
 	pb.UnimplementedNotificationServiceServer
-	Repo dbstore.Storage
+	repo dbstore.Storage
 }
 
 func NewNotificationService(repo dbstore.Storage) *NotificationService {
 	return &NotificationService{
-		Repo: repo,
+		repo: repo,
 	}
 }
 
 func (s *NotificationService) AddNotification(ctx context.Context, req *pb.AddNotificationReq) (*pb.Empty, error) {
-	return s.Repo.Notification().AddNotification(req)
+	return s.repo.Notification().AddNotification(req)
 }
 
-func (s *NotificationService) GetNotifications(ctx context.Context, req *pb.GetNotificationsReq) (*pb.Notification, error) {
-	return s.Repo.Notification().GetNotifications(req)
+func (s *NotificationService) GetNotifications(ctx context.Context, req *pb.GetNotificationsReq) (*pb.GetNotificationsResp, error) {
+	return s.repo.Notification().GetNotifications(req)
 }
 
 func (s *NotificationService) MarkNotificationAsRead(ctx context.Context, req *pb.MarkNotificationAsReadReq) (*pb.MarkNotificationAsReadResp, error) {
-	return s.Repo.Notification().MarkNotificationAsRead(req)
+	return s.repo.Notification().MarkNotificationAsRead(req)
 }

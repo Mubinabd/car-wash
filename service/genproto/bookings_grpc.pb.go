@@ -32,7 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BookingsClient interface {
 	AddBooking(ctx context.Context, in *AddBookingReq, opts ...grpc.CallOption) (*Empty, error)
-	GetBooking(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Booking, error)
+	GetBooking(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetBookingResp, error)
 	ListAllBookings(ctx context.Context, in *ListAllBookingsReq, opts ...grpc.CallOption) (*ListAllBookingsResp, error)
 	UpdateBooking(ctx context.Context, in *UpdateBookingReq, opts ...grpc.CallOption) (*UpdateBookingResp, error)
 	DeleteBooking(ctx context.Context, in *DeleteBookingReq, opts ...grpc.CallOption) (*DeleteBookingResp, error)
@@ -57,9 +57,9 @@ func (c *bookingsClient) AddBooking(ctx context.Context, in *AddBookingReq, opts
 	return out, nil
 }
 
-func (c *bookingsClient) GetBooking(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Booking, error) {
+func (c *bookingsClient) GetBooking(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetBookingResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Booking)
+	out := new(GetBookingResp)
 	err := c.cc.Invoke(ctx, Bookings_GetBooking_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (c *bookingsClient) GetBookingsByProvider(ctx context.Context, in *Bookings
 // for forward compatibility
 type BookingsServer interface {
 	AddBooking(context.Context, *AddBookingReq) (*Empty, error)
-	GetBooking(context.Context, *GetById) (*Booking, error)
+	GetBooking(context.Context, *GetById) (*GetBookingResp, error)
 	ListAllBookings(context.Context, *ListAllBookingsReq) (*ListAllBookingsResp, error)
 	UpdateBooking(context.Context, *UpdateBookingReq) (*UpdateBookingResp, error)
 	DeleteBooking(context.Context, *DeleteBookingReq) (*DeleteBookingResp, error)
@@ -127,7 +127,7 @@ type UnimplementedBookingsServer struct {
 func (UnimplementedBookingsServer) AddBooking(context.Context, *AddBookingReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddBooking not implemented")
 }
-func (UnimplementedBookingsServer) GetBooking(context.Context, *GetById) (*Booking, error) {
+func (UnimplementedBookingsServer) GetBooking(context.Context, *GetById) (*GetBookingResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBooking not implemented")
 }
 func (UnimplementedBookingsServer) ListAllBookings(context.Context, *ListAllBookingsReq) (*ListAllBookingsResp, error) {

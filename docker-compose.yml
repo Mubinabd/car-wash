@@ -1,0 +1,70 @@
+services:
+  api-gateway:
+    container_name: gateway1
+    build: ./gateway
+    depends_on:
+      - carwash-service
+    ports:
+      - "8080:8080"
+    networks:
+      - carwash
+    volumes:
+      - ./gateway:/home/mubina/Desktop/exams/5-exam/gateway
+
+  carwash-service:
+    container_name: carwash_service
+    build: ./service 
+    depends_on:
+      - mongo-db
+    ports:
+      - "8085:8085"
+    networks:
+      - carwash
+    environment:
+      MONGO_URI: mongodb://mongo-db:27017/carwash
+
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:latest
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - carwash
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    container_name: zookeeper1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    networks:
+      - carwash
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    networks:
+      - carwash
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+networks:
+  carwash:
+    driver: bridge
+
+volumes:
+  mongo_data:

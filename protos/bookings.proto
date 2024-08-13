@@ -1,12 +1,9 @@
 syntax="proto3";
 
-option go_package = "genproto";
-
+option go_package = "genproto/";
 package car_wash;
 
 import "protos/common.proto";
-import "protos/providers.proto";
-import "protos/services.proto";
 
 
 service Bookings {
@@ -20,8 +17,8 @@ service Bookings {
 message Booking {
     string id = 1;
     string user_id = 2;
-    Provider provider_id = 3;
-    Services service_id = 4;
+    string provider_id = 3;
+    string service_id = 4;
     GeoPoint location = 5;
     string schudule_time = 6;
     string status = 7;

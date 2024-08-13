@@ -25,11 +25,11 @@ definitions:
         type: number
       booking_id:
         type: string
+      cart_id:
+        type: string
       payment_method:
         type: string
       status:
-        type: string
-      transaction_id:
         type: string
     type: object
   genproto.AddReviewReq:
@@ -67,11 +67,11 @@ definitions:
       location:
         $ref: '#/definitions/genproto.GeoPoint'
       provider_id:
-        $ref: '#/definitions/genproto.Provider'
+        type: string
       schudule_time:
         type: string
       service_id:
-        $ref: '#/definitions/genproto.Services'
+        type: string
       status:
         type: string
       total_price:
@@ -81,13 +81,6 @@ definitions:
       user_id:
         type: string
     type: object
-  genproto.BookingsByProviderResp:
-    properties:
-      bookings:
-        items:
-          $ref: '#/definitions/genproto.Booking'
-        type: array
-    type: object
   genproto.Cart:
     properties:
       id:
@@ -95,7 +88,7 @@ definitions:
       number:
         type: integer
       service_id:
-        $ref: '#/definitions/genproto.Services'
+        type: string
       total:
         type: integer
       user_id:
@@ -123,13 +116,6 @@ definitions:
     properties:
       booking:
         $ref: '#/definitions/genproto.Booking'
-    type: object
-  genproto.GetNotificationsResp:
-    properties:
-      notifications:
-        items:
-          $ref: '#/definitions/genproto.Notification'
-        type: array
     type: object
   genproto.GetProviderResp:
     properties:
@@ -188,25 +174,14 @@ definitions:
       id:
         type: string
     type: object
-  genproto.Notification:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      is_read:
-        type: boolean
-      message:
-        type: string
-      user_id:
-        type: string
-    type: object
   genproto.Payment:
     properties:
       amount:
         type: number
       booking_id:
-        $ref: '#/definitions/genproto.Booking'
+        type: string
+      cart_id:
+        type: string
       created_at:
         type: string
       deleted_at:
@@ -216,8 +191,6 @@ definitions:
       payment_method:
         type: string
       status:
-        type: string
-      transaction_id:
         type: string
       updated_at:
         type: string
@@ -271,7 +244,7 @@ definitions:
   genproto.Review:
     properties:
       booking_id:
-        $ref: '#/definitions/genproto.Booking'
+        type: string
       comment:
         type: string
       created_at:
@@ -281,7 +254,7 @@ definitions:
       id:
         type: string
       provider_id:
-        $ref: '#/definitions/genproto.Provider'
+        type: string
       rating:
         type: integer
       updated_at:
@@ -340,8 +313,8 @@ definitions:
     properties:
       id:
         type: string
-      services:
-        $ref: '#/definitions/genproto.Services'
+      name:
+        type: string
     type: object
 info:
   contact: {}
@@ -356,17 +329,9 @@ paths:
       - application/json
       description: This API lists all bookings with optional filters
       parameters:
-      - description: User ID
-        in: query
-        name: user_id
-        type: string
       - description: Status
         in: query
         name: status
-        type: string
-      - description: Provider ID
-        in: query
-        name: provider_id
         type: string
       - description: Limit
         in: query
@@ -521,37 +486,6 @@ paths:
       summary: Add booking
       tags:
       - carwash/booking
-  /api/v1/booking/provider:
-    get:
-      consumes:
-      - application/json
-      description: This API retrieves bookings for a specific provider
-      parameters:
-      - description: Provider ID
-        in: query
-        name: provider_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/genproto.BookingsByProviderResp'
-        "400":
-          description: 'error": "error description'
-          schema:
-            type: string
-        "500":
-          description: 'error": "error description'
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Get bookings by provider
-      tags:
-      - carwash/booking
   /api/v1/cart/{id}:
     get:
       consumes:
@@ -605,31 +539,6 @@ paths:
       summary: CREATE cart
       tags:
       - carwash/Cart
-  /api/v1/notification/{id}:
-    get:
-      consumes:
-      - application/json
-      description: This API retrieves a notification by ID
-      parameters:
-      - description: Notification ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/genproto.GetNotificationsResp'
-        "400":
-          description: 'error": "error message'
-          schema:
-            type: string
-      summary: GET notification
-      tags:
-      - carwash/Notification
   /api/v1/notification/{id}/read:
     put:
       consumes:
@@ -692,10 +601,6 @@ paths:
       - application/json
       description: This API retrieves all Payments with optional filters
       parameters:
-      - description: Booking ID
-        in: query
-        name: booking_id
-        type: string
       - description: Status
         in: query
         name: status

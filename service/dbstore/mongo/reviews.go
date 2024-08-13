@@ -41,22 +41,22 @@ func (r *ReviewsManager) AddReview(req *pb.AddReviewReq) (*pb.Empty, error) {
 }
 
 func (r *ReviewsManager) GetReview(req *pb.GetById) (*pb.Review, error) {
-	var review pb.Review
-	collection := r.collec.Database().Collection("reviews")
-	filter := bson.M{"id": req.Id}
+	if req.Id == "" {
+        return nil, errors.New("id cannot be empty")
+    }
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&review)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no review found with the given ID")
-		}
-		return nil, err
-	}
-	logger.Info("Review retrieved successfully", logrus.Fields{
-		"review_id": review.Id,
-		"rating":    review.Rating,
-		"comment":   review.Comment,
-	})
+    oid, err := primitive.ObjectIDFromHex(req.Id)
+    if err != nil {
+        return nil, errors.New("invalid ID format")
+    }
+
+    var review pb.Review
+    err = r.collec.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&review)
+    if err == mongo.ErrNoDocuments {
+        return nil, errors.New("review not found")
+    } else if err != nil {
+        return nil, err
+    }
 	return &review, nil
 }
 
@@ -97,7 +97,6 @@ func(r *ReviewsManager) DeleteReview(req *pb.DeleteReviewReq) (*pb.DeleteReviewR
 func(r *ReviewsManager)ListAllReviews(req *pb.ListAllReviewsReq) (*pb.ListAllReviewsResp, error) {
 
 	var reviews []*pb.Review	
-	collection := r.collec.Database().Collection("reviews")	
 	filter := bson.M{}
 
 	if req.BookingId != "" {
@@ -122,7 +121,7 @@ func(r *ReviewsManager)ListAllReviews(req *pb.ListAllReviewsReq) (*pb.ListAllRev
 		}
 	}
 
-	cursor, err := collection.Find(context.TODO(), filter,
+	cursor, err := r.collec.Find(context.TODO(), filter,
 	options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		return nil, err
@@ -136,6 +135,8 @@ func(r *ReviewsManager)ListAllReviews(req *pb.ListAllReviewsReq) (*pb.ListAllRev
 		}
 		reviews = append(reviews, &review)
 	}
-
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
 	return &pb.ListAllReviewsResp{Reviews: reviews}, nil	
 }

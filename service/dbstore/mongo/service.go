@@ -42,25 +42,24 @@ func (s *ServicesManager) AddService(req *pb.AddServiceReq) (*pb.Empty, error) {
 	return &pb.Empty{}, nil
 }
 
-func (s *ServicesManager) GetService(req *pb.GetById) (*pb.Services, error) {
-	var service pb.Services
-	collection := s.collec
-	filter := bson.M{"id": req.Id}
+func (s *ServicesManager) GetServices(req *pb.GetById) (*pb.GetServicesResp, error) {
+	if req.Id == "" {
+		return nil, errors.New("id cannot be empty")
+	}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&service)
+	oid, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no service found with the given ID")
-		}
+		return nil, errors.New("invalid ID format")
+	}
+	var service pb.Services
+	err = s.collec.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&service)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("service not found")
+	} else if err != nil {
 		return nil, err
 	}
 
-	logger.Info("Service retrieved successfully", logrus.Fields{
-		"service_id":   service.Id,
-		"service_name": service.Name,
-	})
-
-	return &service, nil
+	return &pb.GetServicesResp{Services: &service}, nil
 }
 
 func (s *ServicesManager) ListAllServices(req *pb.ListAllServicesReq) (*pb.ListAllServicesResp, error) {
@@ -114,13 +113,24 @@ func (s *ServicesManager) ListAllServices(req *pb.ListAllServicesReq) (*pb.ListA
 }
 
 func (s *ServicesManager) UpdateService(req *pb.UpdateServiceReq) (*pb.UpdateServiceResp, error) {
-	filter := bson.M{"id": req.Id}
+	oid, err := primitive.ObjectIDFromHex(req.Id)
+	if err != nil {
+		return nil, errors.New("invalid ID format")
+	}
 
-	update := bson.M{"$set": req.Services}
+	filter := bson.M{"_id": oid}
+
+	update := bson.M{"$set": bson.M{
+		"name":        req.Name,
+	}}
 
 	result, err := s.collec.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return nil, err
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, fmt.Errorf("service with ID %s not found", req.Id)
 	}
 
 	var updatedService pb.Services
@@ -135,6 +145,7 @@ func (s *ServicesManager) UpdateService(req *pb.UpdateServiceReq) (*pb.UpdateSer
 
 	return &pb.UpdateServiceResp{Services: &updatedService}, nil
 }
+
 func (s *ServicesManager) DeleteService(req *pb.DeleteServiesReq) (*pb.DeleteServiesResp, error) {
 	filter := bson.M{"id": req.Id}
 	_, err := s.collec.DeleteOne(context.TODO(), filter)
@@ -199,10 +210,10 @@ func (s *ServicesManager) GetServicesByPriceRange(req *pb.GetServicesByPriceRang
 		filter["price"] = bson.M{"$gte": req.MinPrice}
 	}
 	if req.MaxPrice > 0 {
-		if filter["price"] == nil {
-			filter["price"] = bson.M{"$lte": req.MaxPrice}
-		} else {
+		if _, exists := filter["price"]; exists {
 			filter["price"].(bson.M)["$lte"] = req.MaxPrice
+		} else {
+			filter["price"] = bson.M{"$lte": req.MaxPrice}
 		}
 	}
 
@@ -214,9 +225,17 @@ func (s *ServicesManager) GetServicesByPriceRange(req *pb.GetServicesByPriceRang
 
 	for cursor.Next(context.TODO()) {
 		var service pb.Services
+
 		if err := cursor.Decode(&service); err != nil {
+			logger.Error("Error decoding service:", err)
 			return nil, err
 		}
+
+		if service.Price <= 0 {
+			logger.Error("Invalid price field detected, skipping service")
+			continue
+		}
+
 		services = append(services, &service)
 	}
 
@@ -230,3 +249,4 @@ func (s *ServicesManager) GetServicesByPriceRange(req *pb.GetServicesByPriceRang
 
 	return &pb.GetServicesByPriceRangeResp{Services: services}, nil
 }
+

@@ -1,0 +1,46 @@
+//service
+p, admin, /api/v1/service/add,                POST
+p, admin, /api/v1/service/:id,                PUT
+p, admin, /api/v1/service/:id,                DELETE
+p, user,  /api/v1/service/:id,                GET
+p, user,  /api/v1/service,                    GET
+p, unauthorized,  /api/v1/service/search,     GET
+p, unauthorized,  /api/v1/service/priceRange, GET
+
+//cart
+p, admin,  /api/v1/cart/add,    POST
+p, user,  /api/v1/cart/:id,     GET
+
+
+//review
+p, admin, /api/v1/review/add,            POST
+p, admin, /api/v1/review/:id,            PUT
+p, admin, /api/v1/review/:id,            DELETE
+p, user,  /api/v1/review/:id,            GET
+p, user,  /api/v1/review,                GET
+p, unauthorized,  /api/v1/review/search, GET
+
+//booking
+p, admin, /api/v1/booking/add, POST
+p, admin, /api/v1/booking/:id, PUT
+p, admin, /api/v1/booking/:id, DELETE
+p, user,  /api/v1/booking/:id, GET
+p, user,  /api/v1/booking,     GET
+
+//payment
+p, admin, /api/v1/payment/add, POST
+p, admin, /api/v1/payment/:id, PUT
+p, admin, /api/v1/payment,     GET
+
+
+//notification
+p, user,  /api/v1/notification/add,      POST
+p, user,  /api/v1/notification/:id/read, PUT
+
+//provider
+p, admin, /api/v1/provider/add,            POST
+p, admin, /api/v1/provider/:id,            PUT
+p, admin, /api/v1/provider/:id,            DELETE
+p, user,  /api/v1/provider/:id,            GET
+p, user,  /api/v1/provider,                GET
+p, unauthorized,  /api/v1/provider/search, GET

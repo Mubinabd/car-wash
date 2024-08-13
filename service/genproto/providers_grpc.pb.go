@@ -32,7 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProviderServiceClient interface {
 	RegisterProvider(ctx context.Context, in *RegisterProviderReq, opts ...grpc.CallOption) (*Empty, error)
-	GetProvider(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Provider, error)
+	GetProvider(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetProviderResp, error)
 	ListAllProviders(ctx context.Context, in *ListAllProvidersReq, opts ...grpc.CallOption) (*ListAllProvidersResp, error)
 	UpdateProvider(ctx context.Context, in *UpdateProviderReq, opts ...grpc.CallOption) (*UpdateProviderResp, error)
 	DeleteProvider(ctx context.Context, in *DeleteProviderReq, opts ...grpc.CallOption) (*DeleteProviderResp, error)
@@ -57,9 +57,9 @@ func (c *providerServiceClient) RegisterProvider(ctx context.Context, in *Regist
 	return out, nil
 }
 
-func (c *providerServiceClient) GetProvider(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Provider, error) {
+func (c *providerServiceClient) GetProvider(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*GetProviderResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Provider)
+	out := new(GetProviderResp)
 	err := c.cc.Invoke(ctx, ProviderService_GetProvider_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (c *providerServiceClient) SearchProviders(ctx context.Context, in *SearchP
 // for forward compatibility
 type ProviderServiceServer interface {
 	RegisterProvider(context.Context, *RegisterProviderReq) (*Empty, error)
-	GetProvider(context.Context, *GetById) (*Provider, error)
+	GetProvider(context.Context, *GetById) (*GetProviderResp, error)
 	ListAllProviders(context.Context, *ListAllProvidersReq) (*ListAllProvidersResp, error)
 	UpdateProvider(context.Context, *UpdateProviderReq) (*UpdateProviderResp, error)
 	DeleteProvider(context.Context, *DeleteProviderReq) (*DeleteProviderResp, error)
@@ -127,7 +127,7 @@ type UnimplementedProviderServiceServer struct {
 func (UnimplementedProviderServiceServer) RegisterProvider(context.Context, *RegisterProviderReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterProvider not implemented")
 }
-func (UnimplementedProviderServiceServer) GetProvider(context.Context, *GetById) (*Provider, error) {
+func (UnimplementedProviderServiceServer) GetProvider(context.Context, *GetById) (*GetProviderResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProvider not implemented")
 }
 func (UnimplementedProviderServiceServer) ListAllProviders(context.Context, *ListAllProvidersReq) (*ListAllProvidersResp, error) {

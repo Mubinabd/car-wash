@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +12,7 @@ import (
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
 )
+
 // @Router        /api/v1/review/add [POST]
 // @Summary       CREATE review
 // @Description   This API creates a review
@@ -26,17 +29,28 @@ func (h *Handlers) AddReview(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := h.Clients.Reviews.AddReview(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("cr-review", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Reviews.AddReview(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(500, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	logger.Info("Create Reviews: Reviews created successfully: ")
 
 	c.JSON(200, gin.H{"message": "Reviews created successfully"})
 
 }
+
 // Get review godoc
 // @Summary      Get review
 // @Description  This API Gets a  review
@@ -65,6 +79,7 @@ func (h *Handlers) GetReview(c *gin.Context) {
 
 	c.JSON(200, res)
 }
+
 // List all review godoc
 // @Summary      List all review
 // @Description  This API Lists a new review
@@ -125,6 +140,7 @@ func (h *Handlers) ListAllReviews(c *gin.Context) {
 	logger.Info("ListAllReviewss: Reviews retrieved successfully")
 	c.JSON(200, res)
 }
+
 // Put review godoc
 // @Summary      Put  review
 // @Description  This API Put s a new review
@@ -146,19 +162,30 @@ func (h *Handlers) UpdateReview(c *gin.Context) {
 		return
 	}
 
-	_, err := h.Clients.Reviews.UpdateReview(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("up-review", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Reviews.UpdateReview(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 	logger.Info("update Reviews: Reviews retrieved successfully")
 
 	c.JSON(200, gin.H{
 		"message": "updated successfully",
 	})
 }
+
 // Delete review godoc
 // @Summary      Delete review
 // @Description  This API deleted a new review
@@ -175,13 +202,23 @@ func (h *Handlers) DeleteReview(c *gin.Context) {
 	id := c.Param("id")
 	req.Id = id
 
-	_, err := h.Clients.Reviews.DeleteReview(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("dl-review", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Reviews.DeleteReview(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 	logger.Info("delete Reviews: Reviews retrieved successfully")
 
 	c.JSON(200, gin.H{

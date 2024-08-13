@@ -27,30 +27,32 @@ func main() {
 
 	db, err := mongo.ConnectMongo()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error while connecting to mongo: ", err)
 	}
-	cfg := config.Load()
 	liss, err := net.Listen("tcp", ":8085")
 	if err != nil {
 		log.Fatal(err)
 	}
-	s := grpc.NewServer()
+
+	cfg := config.Load()
+
 
 	var wg sync.WaitGroup
 	wg.Add(1)
+	brokers := []string{"kafka:9092"}
 
-	logger.Info("gRPC service started successfully")
-	gServer := grpc.NewServer()
+	kcm := kafka.NewKafkaConsumerManager()
+
+	
 
 	bservice := service.NewBookingService(db)
 	cservice := service.NewCartService(db)
 	prservice := service.NewProviderService(db)
+	nservice := service.NewNotificationService(db)
+	pservice := service.NewPaymentService(db)
 	rservice := service.NewReviewService(db)
 	sservice := service.NewServiceService(db)
 
-	brokers := []string{"localhost:9092"}
-
-	kcm := kafka.NewKafkaConsumerManager()
 
 	if err := kcm.RegisterConsumer(brokers, "cr-booking", "product", kafka.BookingHandler(bservice)); err != nil {
 		if err == kafka.ErrConsumerAlreadyExists {
@@ -81,14 +83,6 @@ func main() {
 			log.Printf("Consumer for topic 'cr-booking' already exists")
 		} else {
 			log.Printf("Failed to register consumer for topic 'cr-booking': %v", err)
-
-		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "up-service", "product", kafka.UpdateserviceHandler(sservice)); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			log.Printf("Consumer for topic 'cp-service' already exists")
-		} else {
-			log.Printf("Failed to register consumer for topic 'up-service': %v", err)
 
 		}
 	}
@@ -148,16 +142,27 @@ func main() {
 
 		}
 	}
-	pb.RegisterBookingsServer(gServer, service.NewBookingService(db))
-	pb.RegisterCartServiceServer(gServer, service.NewCartService(db))
-	pb.RegisterNotificationServiceServer(gServer, service.NewNotificationService(db))
-	pb.RegisterPaymentServiceServer(gServer, service.NewPaymentService(db))
-	pb.RegisterProviderServiceServer(gServer, service.NewProviderService(db))
-	pb.RegisterReviewServiceServer(gServer, service.NewReviewService(db))
-	pb.RegisterServicesServiceServer(gServer, service.NewServiceService(db))
+	if err := kcm.RegisterConsumer(brokers, "dl-service", "service", kafka.DeleteserviceHandler(sservice)); err != nil {
+		if err == kafka.ErrConsumerAlreadyExists {
+			log.Printf("Consumer for topic 'dl-service' already exists")
+		} else {
+			log.Printf("Failed to register consumer for topic 'dl-service': %v", err)
+
+		}
+	}
+	
+	gServer := grpc.NewServer()
+	
+	pb.RegisterBookingsServer(gServer, bservice)
+	pb.RegisterCartServiceServer(gServer, cservice)
+	pb.RegisterNotificationServiceServer(gServer, nservice)
+	pb.RegisterPaymentServiceServer(gServer, pservice)
+	pb.RegisterProviderServiceServer(gServer, prservice)
+	pb.RegisterReviewServiceServer(gServer, rservice)
+	pb.RegisterServicesServiceServer(gServer, sservice)
 
 	log.Println("Server started on port", cfg.HTTPPort)
-	if err := s.Serve(liss); err != nil {
+	if err := gServer.Serve(liss); err != nil {
 		log.Fatal(err)
 
 		sigChan := make(chan os.Signal, 1)

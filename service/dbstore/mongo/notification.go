@@ -8,7 +8,6 @@ import (
 
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,52 +42,62 @@ func (n *NotificationManager) AddNotification(req *pb.AddNotificationReq) (*pb.E
 
 }
 
-func (n *NotificationManager) GetNotifications(req *pb.GetNotificationsReq) (*pb.Notification, error) {
-	var notification pb.Notification
-	collection := n.collec.Database().Collection("notifications")
+func (n *NotificationManager) GetNotifications(req *pb.GetNotificationsReq) (*pb.GetNotificationsResp, error) {
 
-	filter := bson.M{"user_id": req.UserId}
+	log.Printf("Received request with UserId: %s", req.UserId)
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&notification)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no notification found for user ID %s", req.UserId)
-		}
-		return nil, err
-	}
-
-	logger.Info("Notification retrieved successfully", logrus.Fields{
-		"notification_id": notification.Id,
-		"user_id":         req.UserId,
-	})
-
-	return &notification, nil
-}
-
-func (n *NotificationManager) MarkNotificationAsRead(req *pb.MarkNotificationAsReadReq) (*pb.MarkNotificationAsReadResp, error) {
-    
-    objectId, err := primitive.ObjectIDFromHex(req.Id)
-    if err != nil {
-        return nil, fmt.Errorf("invalid resource id format: %s", req.Id)
+	
+    if req.UserId == "" {
+        return nil, errors.New("user ID cannot be empty")
     }
 
-    filter := bson.M{"_id": objectId}
-    update := bson.M{"$set": bson.M{"completed": true}}
+    filter := bson.M{"user_id": req.UserId}
 
-    result, err := n.collec.UpdateOne(context.TODO(), filter, update)
+    var notifications []*pb.Notification
+    cursor, err := n.collec.Find(context.TODO(), filter)
     if err != nil {
         return nil, err
     }
+    defer cursor.Close(context.TODO())
 
-    if result.MatchedCount == 0 {
-        return nil, fmt.Errorf("resource not found")
+    for cursor.Next(context.TODO()) {
+        var notification pb.Notification
+        if err := cursor.Decode(&notification); err != nil {
+            return nil, err
+        }
+        notifications = append(notifications, &notification)
     }
 
-    response := &pb.MarkNotificationAsReadResp{
-        Message:  "Resource marked as complete",
-		Success:  true,
+    if len(notifications) == 0 {
+        return nil, errors.New("no notifications found for this user")
     }
 
-    return response, nil
+    return &pb.GetNotificationsResp{Notifications: notifications}, nil
 }
 
+func (n *NotificationManager) MarkNotificationAsRead(req *pb.MarkNotificationAsReadReq) (*pb.MarkNotificationAsReadResp, error) {
+
+	objectId, err := primitive.ObjectIDFromHex(req.Id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid resource id format: %s", req.Id)
+	}
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{"$set": bson.M{"completed": true}}
+
+	result, err := n.collec.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, fmt.Errorf("resource not found")
+	}
+
+	response := &pb.MarkNotificationAsReadResp{
+		Message: "Resource marked as complete",
+		Success: true,
+	}
+
+	return response, nil
+}

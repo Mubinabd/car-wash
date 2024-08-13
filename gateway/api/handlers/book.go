@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -29,11 +31,20 @@ func (h *Handlers) AddBooking(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := h.Clients.BookingClient.AddBooking(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("cr-booking", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+	// _, err := h.Clients.BookingClient.AddBooking(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(500, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	logger.Info("Create Booking: booking created successfully")
 
@@ -77,9 +88,7 @@ func (h *Handlers) GetBooking(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        user_id query string false "User ID"
 // @Param        status query string false "Status"
-// @Param        provider_id query string false "Provider ID"
 // @Param        limit query int false "Limit"
 // @Param        offset query int false "Offset"
 // @Success      200 {object} pb.ListAllBookingsResp
@@ -88,14 +97,11 @@ func (h *Handlers) GetBooking(c *gin.Context) {
 func (h *Handlers) ListAllBookings(c *gin.Context) {
 	var req pb.ListAllBookingsReq
 	status := c.Query("status")
-	user_id := c.Query("user_id")
-	provider_id := c.Query("provider_id")
+
 	limit := c.Query("limit")
 	offset := c.Query("offset")
 
 	req.Status = status
-	req.UserId = user_id
-	req.ProviderId = provider_id
 
 	if limit != "" {
 		limitValue, err := strconv.Atoi(limit)
@@ -153,11 +159,20 @@ func (h *Handlers) UpdateBooking(c *gin.Context) {
 	id := c.Param("id")
 	req.Id = id
 
-	_, err := h.Clients.BookingClient.UpdateBooking(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("up-booking", input)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+	// _, err := h.Clients.BookingClient.UpdateBooking(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	logger.Info("Update Booking: Booking updated successfully")
 
 	c.JSON(200, gin.H{"message": "booking updated successfully"})
@@ -180,38 +195,22 @@ func (h *Handlers) DeleteBooking(c *gin.Context) {
 	id := c.Param("id")
 	req.Id = id
 
-	_, err := h.Clients.BookingClient.DeleteBooking(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("dl-booking", input)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.BookingClient.DeleteBooking(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	logger.Info("Delete Booking: Booking deleted successfully")
 
 	c.JSON(200, gin.H{"message": "booking deleted successfully"})
-}
-
-// GetBookingsByProvider godoc
-// @Summary      Get bookings by provider
-// @Description  This API retrieves bookings for a specific provider
-// @Tags         carwash/booking
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        provider_id query string true "Provider ID"
-// @Success      200 {object} pb.BookingsByProviderResp
-// @Failure      400 {object} string "error": "error description"
-// @Failure      500 {object} string "error": "error description"
-// @Router       /api/v1/booking/provider [get]
-func (h *Handlers) GetBookingsByProvider(c *gin.Context) {
-	var req pb.BookingsByProviderReq
-	provider_id := c.Query("provider_id")
-
-	req.ProviderId = provider_id
-
-	res, err := h.Clients.BookingClient.GetBookingsByProvider(context.Background(), &req)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(200, res)
 }

@@ -1,11 +1,10 @@
 syntax = "proto3";
 
-option go_package = "genproto";
+option go_package = "genproto/";
 
 package car_wash;
 
 import "protos/common.proto";
-import "protos/bookings.proto";
 
 
 service PaymentService {
@@ -16,11 +15,11 @@ service PaymentService {
 
 message Payment {
     string id = 1;
-    Booking booking_id = 2;
+    string booking_id = 2;
     float amount = 3;
     string status = 4;
     string payment_method = 5;
-    string transaction_id = 6;
+    string cart_id = 6;
     string created_at = 7;
     string updated_at = 8;
     string deleted_at = 9;
@@ -31,7 +30,7 @@ message AddPaymentReq {
     float amount = 2;
     string status = 3;
     string payment_method = 4;
-    string transaction_id = 5;
+    string cart_id = 5;
 }
 
 message GetPaymentResp {

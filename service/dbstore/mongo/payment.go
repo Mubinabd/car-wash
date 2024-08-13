@@ -2,12 +2,13 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
 
 	"github.com/Mubinabd/car-wash/logger"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -15,45 +16,40 @@ import (
 )
 
 type PaymentsManager struct {
-	collec *mongo.Collection
+	collec       *mongo.Collection
+	notification *NotificationManager
 }
 
-func NewPaymentsManager(db *mongo.Database) *PaymentsManager {
+func NewPaymentsManager(db *mongo.Database, notificationManager *NotificationManager) *PaymentsManager {
 	return &PaymentsManager{
-		collec: db.Collection("payments"),
+		collec:       db.Collection("payments"),
+		notification: notificationManager,
 	}
 }
 func (p *PaymentsManager) AddPayment(req *pb.AddPaymentReq) (*pb.Empty, error) {
 	ctx := context.Background()
 
-	session, err := p.collec.Database().Client().StartSession()
+	_, err := p.collec.InsertOne(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	defer session.EndSession(ctx)
 
-	transactionOperation := func(ctxs mongo.SessionContext) (interface{}, error) {
-		_, err := p.collec.InsertOne(ctxs, req)
-		if err != nil {
-			return nil, err
-		}
-
-		cartCollection := p.collec.Database().Collection("cart")
-		_, err = cartCollection.UpdateOne(
-			ctxs,
-			bson.M{"_id": req.CartId},
-			bson.M{"$inc": bson.M{"total": -req.Amount}},
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		return nil, nil
+	notificationReq := &pb.AddNotificationReq{
+		UserId:  req.BookingId,
+		Message: "Your booking has been successfully created!",
 	}
 
-	_, err = session.WithTransaction(ctx, transactionOperation)
+	cartCollection := p.collec.Database().Collection("cart")
+	_, err = cartCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": req.CartId},
+		bson.M{"$inc": bson.M{"total": -req.Amount}},
+	)
+	_, err = p.notification.AddNotification(notificationReq)
 	if err != nil {
-		log.Println("Transaction failed:", err)
+		return nil, err
+	}
+	if err != nil {
 		return nil, err
 	}
 
@@ -63,11 +59,16 @@ func (p *PaymentsManager) AddPayment(req *pb.AddPaymentReq) (*pb.Empty, error) {
 }
 
 func (p *PaymentsManager) GetPayment(req *pb.GetById) (*pb.GetPaymentResp, error) {
-	var payment pb.GetPaymentResp
-	collection := p.collec
-	filter := bson.M{"id": req.Id}
+	var payment pb.Payment
+	if req.Id == "" {
+		return nil, errors.New("id cannot be empty")
+	}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&payment)
+	oid, err := primitive.ObjectIDFromHex(req.Id)
+	if err != nil {
+		return nil, errors.New("invalid ID format")
+	}
+	err = p.collec.FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&payment)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("no payment found with the given ID")
@@ -76,22 +77,18 @@ func (p *PaymentsManager) GetPayment(req *pb.GetById) (*pb.GetPaymentResp, error
 	}
 
 	logger.Info("Payment retrieved successfully", logrus.Fields{
-		"payment_id":     payment.Payment.Id,
-		"payment_amount": payment.Payment.Amount,
+		"payment_id":     payment.Id,
+		"payment_amount": payment.Amount,
 	})
 
-	return &payment, nil
+	return &pb.GetPaymentResp{Payment: &payment}, nil
 }
 
 func (p *PaymentsManager) ListAllPayments(req *pb.ListAllPaymentsReq) (*pb.ListAllPaymentsResp, error) {
 
 	var payments []*pb.Payment
-	collection := p.collec.Database().Collection("payments")
 	filter := bson.M{}
 
-	if req.BookingId != "" {
-		filter["booking_id"] = req.BookingId
-	}
 	if req.Status != "" {
 		filter["status"] = req.Status
 	}
@@ -108,7 +105,7 @@ func (p *PaymentsManager) ListAllPayments(req *pb.ListAllPaymentsReq) (*pb.ListA
 		}
 	}
 
-	cursor, err := collection.Find(context.TODO(), filter,
+	cursor, err := p.collec.Find(context.TODO(), filter,
 		options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		return nil, err
