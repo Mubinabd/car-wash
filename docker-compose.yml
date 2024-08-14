@@ -7,9 +7,24 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - carwash
+      - mynetwork
     volumes:
       - ./gateway:/home/mubina/Desktop/exams/5-exam/gateway
+
+  auth-service:
+    container_name: auth_service2
+    build: ./auth
+    depends_on: 
+      - postgres-db
+      - carwash-service
+      - kafka
+      - redis
+      - zookeeper
+    ports:
+      - "8090:8090"
+    networks:
+      - mynetwork
+      
 
   carwash-service:
     container_name: carwash_service
@@ -19,9 +34,47 @@ services:
     ports:
       - "8085:8085"
     networks:
-      - carwash
+      - mynetwork
     environment:
       MONGO_URI: mongodb://mongo-db:27017/carwash
+    
+
+  postgres-db:
+    container_name: auth
+    image: postgres:16.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: auth
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5430:5432"
+    networks:
+      - mynetwork
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d auth -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    networks: 
+      - mynetwork
+    volumes:
+      - ./auth/migrations:/migrations
+    command: [ "-path", "/migrations", "-database", "postgres://postgres:1234@auth:5432/auth?sslmode=disable", "up" ]
+    depends_on:
+      - postgres-db
+
+  redis:
+    image: redis
+    ports:
+      - "6375:6379"
+    networks:
+      - mynetwork
 
   mongo-db:
     container_name: mongo-db
@@ -31,7 +84,7 @@ services:
     ports:
       - "27018:27017"
     networks:
-      - carwash
+      - mynetwork
     restart: unless-stopped
 
   zookeeper:
@@ -43,7 +96,7 @@ services:
     ports:
       - 22181:2181
     networks:
-      - carwash
+      - mynetwork
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4
@@ -53,7 +106,7 @@ services:
     ports:
       - 29092:29092
     networks:
-      - carwash
+      - mynetwork
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -63,8 +116,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 networks:
-  carwash:
+  mynetwork:
     driver: bridge
 
 volumes:
   mongo_data:
+  postgres_data:

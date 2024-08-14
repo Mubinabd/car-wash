@@ -8,15 +8,17 @@ import (
 )
 
 type AuthService struct {
-	storage st.Storage
+	storage *st.Storage
 	pb.UnimplementedUserServiceServer
 }
 
 func NewAuthService(storage *st.Storage) *AuthService {
-	return &AuthService{
-		storage: *storage,
-	}
+    return &AuthService{
+        storage: storage,
+    }
 }
+
+
 
 func (s *AuthService) Register(ctx context.Context, req *pb.RegisterReq) (*pb.Void, error) {
 	res, err := s.storage.AuthS.Register(req)

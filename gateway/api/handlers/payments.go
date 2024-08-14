@@ -28,15 +28,6 @@ func (h *Handlers) AddPayment(c *gin.Context) {
 		})
 		return
 	}
-	// input, err := json.Marshal(req)
-	// err = h.Clients.KafkaProducer.ProduceMessages("create-Payment", input)
-	// if err != nil {
-	// 	c.JSON(400, gin.H{
-	// 		"error": err.Error(),
-	// 	})
-	// 	log.Println("cannot produce messages via kafka", err)
-	// 	return
-	// }
 
 	_, err := h.Clients.Payments.AddPayment(context.Background(), &req)
 	if err != nil {

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     last_name VARCHAR(100),
     phone_number DATE,
-    role role_type  DEFAULT 'user',
+    role role_type  NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     deleted_at BIGINT DEFAULT 0

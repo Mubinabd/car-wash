@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -62,14 +61,21 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid email format"})
 	}
 
-	input, err := json.Marshal(req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error"})
-		return
-	}
+	// input, err := json.Marshal(req)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error"})
+	// 	return
+	// }
 
-	err = h.Producer.ProduceMessages("reg-user", input)
+	// err = h.Producer.ProduceMessages("reg-user", input)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	// 	return
+	// }
+
+	_, err = h.Auth.Register(context.Background(), req)
 	if err != nil {
+		log.Printf("failed to register user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}

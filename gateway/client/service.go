@@ -24,7 +24,7 @@ type Clients struct {
 
 func NewClients(cfg *cfg.Config) (*Clients, error) {
 	slog.Info("new client")
-	conn, err := grpc.NewClient("mongo-db:8085", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("mongo-db:8085", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}

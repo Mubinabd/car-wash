@@ -36,7 +36,7 @@ func (p *PaymentsManager) AddPayment(req *pb.AddPaymentReq) (*pb.Empty, error) {
 
 	notificationReq := &pb.AddNotificationReq{
 		UserId:  req.BookingId,
-		Message: "Your booking has been successfully created!",
+		Message: "Your payment has been successfully created!",
 	}
 
 	cartCollection := p.collec.Database().Collection("cart")
@@ -45,10 +45,10 @@ func (p *PaymentsManager) AddPayment(req *pb.AddPaymentReq) (*pb.Empty, error) {
 		bson.M{"_id": req.CartId},
 		bson.M{"$inc": bson.M{"total": -req.Amount}},
 	)
-	_, err = p.notification.AddNotification(notificationReq)
 	if err != nil {
 		return nil, err
 	}
+	_, err = p.notification.AddNotification(notificationReq)
 	if err != nil {
 		return nil, err
 	}

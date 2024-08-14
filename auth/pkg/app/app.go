@@ -16,12 +16,15 @@ import (
 
 func Run(cfg *config.Config) {
 
-	db, err := postgres.NewPostgresStorage(cfg)
-	if err != nil {
-		log.Printf("can't connect to db: %v", err)
-	}
-	defer db.Db.Close()
-	log.Println("Connected to Postgres")
+    db, err := postgres.NewPostgresStorage(cfg)
+    if err != nil {
+        log.Printf("can't connect to db: %v", err)
+    }
+    log.Println("Connected to Postgres")
+
+    authService := service.NewAuthService(db)
+    userService := service.NewUserService(db)
+
 
 	// Redis Connection
 	rdb := redis.NewClient(&redis.Options{
@@ -35,8 +38,6 @@ func Run(cfg *config.Config) {
 	}
 	log.Println("Connected to Redis")
 
-	authService := service.NewAuthService(db)
-	userService := service.NewUserService(db)
 
 	// Kafka
 	brokers := []string{"kafka:9092"}

@@ -8,13 +8,13 @@ import (
 )
 
 type UserService struct {
-	storage st.Storage
+	storage *st.Storage
 	pb.UnimplementedUserServiceServer
 }
 
 func NewUserService(storage *st.Storage) *UserService {
 	return &UserService{
-		storage: *storage,
+		storage: storage,
 	}
 }
 
