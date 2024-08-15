@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error while connecting to mongo: ", err)
 	}
-	liss, err := net.Listen("tcp", ":8085")
+	liss, err := net.Listen("tcp", ":27017")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func main() {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	brokers := []string{"kafka:9092"}
+	brokers := []string{"localhost:9092"}
 
 	kcm := kafka.NewKafkaConsumerManager()
 

@@ -41,14 +41,14 @@ func Load() Config {
 
 	config.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT", ":8080"))
 
-	config.PostgresHost = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST", "postgres"))
+	config.PostgresHost = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST", "localhost"))
 	config.PostgresPort = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", "5432"))
 	config.PostgresUser = cast.ToString(getOrReturnDefaultValue("POSTGRES_USER", "postgres"))
 	config.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "1234"))
 	config.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", "product"))
 
 
-	config.KafkaBrokers = cast.ToStringSlice(getOrReturnDefaultValue("KAFKA_BROKERS", []string{"kafka:9092"}))
+	config.KafkaBrokers = cast.ToStringSlice(getOrReturnDefaultValue("KAFKA_BROKERS", []string{"localhost:9092"}))
 
 
 	config.DefaultOffset = cast.ToString(getOrReturnDefaultValue("DEFAULT_OFFSET", "0"))
@@ -59,7 +59,6 @@ func Load() Config {
 	config.JWTSecretKey = cast.ToString(getOrReturnDefaultValue("JWT_SECRET_KEY", "your_secret_key"))
 	config.JWTExpiry = cast.ToInt(getOrReturnDefaultValue("JWT_EXPIRY", 60))
 
-	config.ProductAddr = cast.ToString(getOrReturnDefaultValue("PRODUCT_port", "product:8085"))
 
 	return config
 }

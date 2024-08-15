@@ -22,7 +22,8 @@ type StorageMongo struct {
 }
 
 func ConnectMongo() (dbstore.Storage, error) {
-	uri := fmt.Sprintf("mongodb://%s:%d", "mongo-db", 27017)
+	uri := fmt.Sprintf("mongodb://%s:%d", "localhost", 27017)
+
 	clientOptions := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -45,7 +46,7 @@ func ConnectMongo() (dbstore.Storage, error) {
 	providerManager := NewProviderManager(database)
 	cartManager := NewCartManager(database)
 	notificationManager := NewNotificationManager(database)
-	paymentManager := NewPaymentsManager(database,notificationManager)
+	paymentManager := NewPaymentsManager(database, notificationManager)
 	bookingManager := NewBookingManager(database, notificationManager)
 	reviewManager := NewReviewsManager(database)
 	serviceManager := NewServicesManager(database)
@@ -85,7 +86,7 @@ func (s *StorageMongo) Notification() dbstore.NotificationI {
 }
 func (s *StorageMongo) Payment() dbstore.PaymentI {
 	if s.PaymentS == nil {
-		s.PaymentS = NewPaymentsManager(s.mongo,NewNotificationManager(s.mongo))
+		s.PaymentS = NewPaymentsManager(s.mongo, NewNotificationManager(s.mongo))
 	}
 	return s.PaymentS
 }

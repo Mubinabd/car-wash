@@ -1,16 +1,12 @@
 package http
 
 import (
-	"log"
-
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/Mubinabd/car-wash/api/handlers"
-	middlerware "github.com/Mubinabd/car-wash/api/middleware"
 	_ "github.com/Mubinabd/car-wash/docs"
 )
 
@@ -26,13 +22,13 @@ import (
 func NewRouter(h *handlers.Handlers) *gin.Engine {
 	router := gin.Default()
 
-	enforcer, err := casbin.NewEnforcer("./load/model.conf", "./load/policy.csv")
+	// enforcer, err := casbin.NewEnforcer("./load/model.conf", "./load/policy.csv")
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	sw := router.Group("/")
-	sw.Use(middlerware.NewAuth(enforcer))
+	// if err != nil {
+	// 	log.Println("error while creating enforcer: ", err)
+	// }
+	// sw := router.Group("/")
+	// sw.Use(middlerware.NewAuth(enforcer))
 
 	// CORS configuration
 	corsConfig := cors.Config{
