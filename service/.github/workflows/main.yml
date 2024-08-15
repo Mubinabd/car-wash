@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22'
+          go-version: '1.22.5'
 
       - name: Cache Go modules
         uses: actions/cache@v3
@@ -50,7 +50,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22'
+          go-version: '1.22.5'
 
       - name: Cache Go modules
         uses: actions/cache@v3
@@ -86,6 +86,6 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /home/mubina/go/src/gitlab.com/food/product
+            cd /home/mubina/car-wash
             sudo docker compose up -d --build
           EOF
