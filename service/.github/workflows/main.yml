@@ -25,20 +25,19 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            | ~/.go/pkg/mod
+            ~/.go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - - name: Install dependencies
-  run: |
-    cd /home/mubina/car-wash/service/go.mod/directory  
-    go mod tidy
-
+      - name: Install dependencies
+        run: |
+          cd /home/mubina/car-wash/service  # Update this if your go.mod file is in a subdirectory
+          go mod tidy
 
       - name: Build
         run: |
-          cd /home/mubina/Desktop/exams/5-exam/service/cmd/main.go
+          cd /home/mubina/car-wash/service  # Update this if your main.go file is in a subdirectory
           go build -o bin/main cmd/main.go
 
   test:
@@ -58,14 +57,14 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            | ~/.go/pkg/mod
+            ~/.go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
       - name: Run tests
         run: |
-          cd path/to/your/subdirectory  # Update this if your tests are in a subdirectory
+          cd /home/mubina/car-wash/service  # Update this if your tests are in a subdirectory
           go test ./...
 
   deploy:
