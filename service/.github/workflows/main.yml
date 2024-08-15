@@ -30,14 +30,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Install dependencies
-        run: |
-          cd /home/mubina/Desktop/exams/5-exam/service  # Update this if your go.mod file is in a subdirectory
-          go mod tidy
+      - - name: Install dependencies
+  run: |
+    cd /home/mubina/car-wash/service/go.mod/directory  
+    go mod tidy
+
 
       - name: Build
         run: |
-          cd /home/mubina/Desktop/exams/5-exam/service  # Update this if your main.go file is in a subdirectory
+          cd /home/mubina/Desktop/exams/5-exam/service/cmd/main.go
           go build -o bin/main cmd/main.go
 
   test:
