@@ -18,28 +18,27 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22'
+          go-version: '1.22.5'
 
       - name: Cache Go modules
         uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
-            | ~/.go/pkg/mod
+            ~/.go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
       - name: Install dependencies
-        run: go mod tidy
+        run: |
+          cd /home/mubina/car-wash/service  # Update this if your go.mod file is in a subdirectory
+          go mod tidy
 
       - name: Build
-        run: go build -o bin/main cmd/main.go
-        # Optional: Save build artifacts
-        # uses: actions/upload-artifact@v3
-        # with:
-        #   name: build
-        #   path: bin/
+        run: |
+          cd /home/mubina/car-wash/service  # Update this if your main.go file is in a subdirectory
+          go build -o bin/main cmd/main.go
 
   test:
     runs-on: ubuntu-latest
@@ -51,20 +50,22 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22'
+          go-version: '1.22.5'
 
       - name: Cache Go modules
         uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
-            | ~/.go/pkg/mod
+            ~/.go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
       - name: Run tests
-        run: go test ./...
+        run: |
+          cd /home/mubina/car-wash/service  # Update this if your tests are in a subdirectory
+          go test ./...
 
   deploy:
     runs-on: ubuntu-latest
@@ -85,6 +86,6 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /home/mubina/go/src/gitlab.com/food/product
+            cd /home/mubina/car-wash
             sudo docker compose up -d --build
           EOF
