@@ -32,7 +32,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd /home/mubina/car-wash/service  # Update this if your go.mod file is in a subdirectory
+          cd /home/mubina/car-wash  # Update this if your go.mod file is in a subdirectory
           go mod tidy
 
       - name: Build
@@ -64,7 +64,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cd /home/mubina/car-wash/service  # Update this if your tests are in a subdirectory
+          cd /home/mubina/car-wash  # Update this if your tests are in a subdirectory
           go test ./...
 
   deploy:
