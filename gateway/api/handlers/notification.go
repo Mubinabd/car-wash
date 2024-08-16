@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 
 	pb "github.com/Mubinabd/car-wash/genproto"
 	"github.com/Mubinabd/car-wash/logger"
@@ -26,23 +28,23 @@ func (h *Handlers) AddNotification(c *gin.Context) {
 		})
 		return
 	}
-	// input, err := json.Marshal(req)
-	// err = h.Clients.KafkaProducer.ProduceMessages("create-notification", input)
-	// if err != nil {
-	// 	c.JSON(400, gin.H{
-	// 		"error": err.Error(),
-	// 	})
-	// 	log.Println("cannot produce messages via kafka", err)
-	// 	return
-	// }
-
-	_, err := h.Clients.Notification.AddNotification(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Clients.KafkaProducer.ProduceMessages("notif", input)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
+
+	// _, err := h.Clients.Notification.AddNotification(context.Background(), &req)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	logger.Info("Create Notification: notification created successfully: ")
 

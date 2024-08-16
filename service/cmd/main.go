@@ -118,6 +118,14 @@ func main() {
 
 		}
 	}
+	if err := kcm.RegisterConsumer(brokers, "notif", "product", kafka.NotificationHandler(nservice)); err != nil {
+		if err == kafka.ErrConsumerAlreadyExists {
+			log.Printf("Consumer for topic 'notif' already exists")
+		} else {
+			log.Printf("Failed to register consumer for topic 'cr-review': %v", err)
+
+		}
+	}
 	if err := kcm.RegisterConsumer(brokers, "up-review", "product", kafka.UpdatereviewHandler(rservice)); err != nil {
 		if err == kafka.ErrConsumerAlreadyExists {
 			log.Printf("Consumer for topic 'up-review' already exists")
