@@ -74,7 +74,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-     - name: Set up SSH key
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
@@ -84,3 +84,10 @@ jobs:
           ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts || { echo "Failed to scan SSH key"; exit 1; }
           cat ~/.ssh/id_ed25519  # For debugging, ensure to remove this line after debugging
 
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/mubina/car-wash
+            sudo docker compose up -d --build
+          EOF
