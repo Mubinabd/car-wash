@@ -89,7 +89,6 @@ func (h *Handlers) GetServices(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        name query string false "Name"
-// @Param        description query string false "Description"
 // @Param        limit query int false "Limit"
 // @Param        offset query int false "Offset"
 // @Success      200 {object} pb.ListAllServicesResp
@@ -98,12 +97,10 @@ func (h *Handlers) GetServices(c *gin.Context) {
 func (h *Handlers) ListAllServices(c *gin.Context) {
 	var req pb.ListAllServicesReq
 	name := c.Query("name")
-	description := c.Query("description")
 	limit := c.Query("limit")
 	offset := c.Query("offset")
 
 	req.Name = name
-	req.Description = description
 
 	if limit != "" {
 		limitValue, err := strconv.Atoi(limit)

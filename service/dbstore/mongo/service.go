@@ -121,7 +121,7 @@ func (s *ServicesManager) UpdateService(req *pb.UpdateServiceReq) (*pb.UpdateSer
 	filter := bson.M{"_id": oid}
 
 	update := bson.M{"$set": bson.M{
-		"name":        req.Name,
+		"name": req.Name,
 	}}
 
 	result, err := s.collec.UpdateOne(context.TODO(), filter, update)
@@ -249,4 +249,3 @@ func (s *ServicesManager) GetServicesByPriceRange(req *pb.GetServicesByPriceRang
 
 	return &pb.GetServicesByPriceRangeResp{Services: services}, nil
 }
-

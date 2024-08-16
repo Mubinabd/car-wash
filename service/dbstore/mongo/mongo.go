@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/Mubinabd/car-wash/dbstore"
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -19,6 +20,7 @@ type StorageMongo struct {
 	ProviderS     dbstore.ProviderI
 	ReviewS       dbstore.ReviewI
 	ServiceS      dbstore.ServiceI
+	Redis         *redis.Client
 }
 
 func ConnectMongo() (dbstore.Storage, error) {
@@ -37,15 +39,24 @@ func ConnectMongo() (dbstore.Storage, error) {
 
 	slog.Info("Connected to MongoDB")
 
+	// Redis Connection
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	slog.Info("Connected to Redis")
+
+
 	database := client.Database("carwash")
 	slog.Info("Database accessed successfully")
 
-	slog.Info("Test document inserted")
 
 	providerManager := NewProviderManager(database)
 	cartManager := NewCartManager(database)
 	notificationManager := NewNotificationManager(database)
-	paymentManager := NewPaymentsManager(database,notificationManager)
+	paymentManager := NewPaymentsManager(database, notificationManager)
 	bookingManager := NewBookingManager(database, notificationManager)
 	reviewManager := NewReviewsManager(database)
 	serviceManager := NewServicesManager(database)
@@ -59,6 +70,7 @@ func ConnectMongo() (dbstore.Storage, error) {
 		ReviewS:       reviewManager,
 		ProviderS:     providerManager,
 		ServiceS:      serviceManager,
+		Redis:         rdb,
 	}, nil
 }
 
@@ -85,7 +97,7 @@ func (s *StorageMongo) Notification() dbstore.NotificationI {
 }
 func (s *StorageMongo) Payment() dbstore.PaymentI {
 	if s.PaymentS == nil {
-		s.PaymentS = NewPaymentsManager(s.mongo,NewNotificationManager(s.mongo))
+		s.PaymentS = NewPaymentsManager(s.mongo, NewNotificationManager(s.mongo))
 	}
 	return s.PaymentS
 }

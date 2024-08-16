@@ -1131,12 +1131,6 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "Description",
-                        "name": "description",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
                         "description": "Limit",
                         "name": "limit",

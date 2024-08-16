@@ -1030,10 +1030,6 @@ paths:
         in: query
         name: name
         type: string
-      - description: Description
-        in: query
-        name: description
-        type: string
       - description: Limit
         in: query
         name: limit
