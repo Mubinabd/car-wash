@@ -1,0 +1,1 @@
+[ERROR]  2024/08/13 17:55:19 app.go:31: can't connect to db: pq: SSL is not enabled on the server

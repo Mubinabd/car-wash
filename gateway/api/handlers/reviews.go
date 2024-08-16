@@ -148,11 +148,10 @@ func (h *Handlers) ListAllReviews(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body pb.UpdateReviewsReq reviewRequest true " review Request"
+// @Param        request body pb.UpdateReviewsReq true " review Request"
 // @Success      200 {object} string "review updated successfully"
 // @Failure      400 {object} string "error"
 // @Router       /api/v1/review/{id} [put]
-
 func (h *Handlers) UpdateReview(c *gin.Context) {
 	var req pb.UpdateReviewsReq
 	if err := c.ShouldBindJSON(&req); err != nil {

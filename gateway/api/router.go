@@ -1,12 +1,15 @@
 package http
 
 import (
-	"github.com/gin-contrib/cors"
+	"log"
+
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/Mubinabd/car-wash/api/handlers"
+	middlerware "github.com/Mubinabd/car-wash/api/middleware"
 	_ "github.com/Mubinabd/car-wash/docs"
 )
 
@@ -17,27 +20,27 @@ import (
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
 // @name                        Authorization
-// @BasePath  /router
+// @BasePath  /api/v1
 // @description                 Description for what is this security definition being used
 func NewRouter(h *handlers.Handlers) *gin.Engine {
 	router := gin.Default()
 
-	// enforcer, err := casbin.NewEnforcer("./load/model.conf", "./load/policy.csv")
+	enforcer, err := casbin.NewEnforcer("./load/model.conf", "./load/policy.csv")
 
-	// if err != nil {
-	// 	log.Println("error while creating enforcer: ", err)
-	// }
-	// sw := router.Group("/")
-	// sw.Use(middlerware.NewAuth(enforcer))
+	if err != nil {
+		log.Fatal(err)
+	}
+	sw := router.Group("/")
+	sw.Use(middlerware.NewAuth(enforcer))
 
 	// CORS configuration
-	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost", "http://localhost:8090"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}
-	router.Use(cors.New(corsConfig))
+	// corsConfig := cors.Config{
+	// 	AllowOrigins:     []string{"http://localhost", "http://localhost:8090"},
+	// 	AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+	// 	AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+	// 	AllowCredentials: true,
+	// }
+	// router.Use(cors.New(corsConfig))
 
 	// Swagger documentation route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

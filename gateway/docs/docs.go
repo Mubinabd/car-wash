@@ -1020,6 +1020,49 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This API Put s a new review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "carwash/review"
+                ],
+                "summary": "Put  review",
+                "parameters": [
+                    {
+                        "description": " review Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/genproto.UpdateReviewsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "review updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -1240,13 +1283,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "name",
                         "name": "name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "description",
-                        "name": "description",
                         "in": "path",
                         "required": true
                     }
@@ -1872,6 +1908,17 @@ const docTemplate = `{
                 },
                 "provider": {
                     "$ref": "#/definitions/genproto.Provider"
+                }
+            }
+        },
+        "genproto.UpdateReviewsReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "review": {
+                    "$ref": "#/definitions/genproto.Review"
                 }
             }
         },

@@ -19,6 +19,6 @@ COPY --from=builder /app/gateway .
 COPY --from=builder /app//load/model.conf ./load/
 COPY --from=builder /app/load/policy.csv ./load/
 
-EXPOSE 8080
+EXPOSE 8070
 
 CMD ["./gateway"]

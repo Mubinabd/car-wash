@@ -234,17 +234,14 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        name path string true "name"
-// @Param        description path string true "description"
 // @Success      200 {object} pb.SearchServicessResp
 // @Failure      400 {object} string "error"
 // @Router       /api/v1/service/search [get]
 func (h *Handlers) SearchServices(c *gin.Context) {
 	var req pb.SearchServicessReq
 	name := c.Query("name")
-	description := c.Query("description")
 
 	req.Name = name
-	req.Description = description
 
 	res, err := h.Clients.Service.SearchServices(context.Background(), &req)
 	if err != nil {

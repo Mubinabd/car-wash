@@ -1,20 +1,22 @@
+version: '3.8'
+
 services:
   api-gateway:
-    container_name: gateway1
+    container_name: gateway
     build: ./gateway
     depends_on:
       - carwash-service
     ports:
-      - "8080:8080"
+      - "8070:8070"
     networks:
       - mynetwork
     volumes:
       - ./gateway:/home/mubina/Desktop/exams/5-exam/gateway
 
   auth-service:
-    container_name: auth_service2
+    container_name: auth_service
     build: ./auth
-    depends_on: 
+    depends_on:
       - postgres-db
       - carwash-service
       - kafka
@@ -24,25 +26,24 @@ services:
       - "8090:8090"
     networks:
       - mynetwork
-      
 
   carwash-service:
     container_name: carwash_service
-    build: ./service 
+    build: ./service
     depends_on:
       - mongo-db
     ports:
-      - "8085:8085"
+      - "8051:8050"
     networks:
       - mynetwork
     environment:
-      MONGO_URI: mongodb://mongo-db:27017/carwash
-    
+      MONGO_URI: mongodb://mongo-db:8051/carwash
 
   postgres-db:
-    container_name: auth
+    container_name: postgres_db
     image: postgres:16.3
     environment:
+      POSTGRES_HOST: postgres_db 
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: auth
@@ -61,11 +62,11 @@ services:
 
   migrate:
     image: migrate/migrate
-    networks: 
+    networks:
       - mynetwork
     volumes:
       - ./auth/migrations:/migrations
-    command: [ "-path", "/migrations", "-database", "postgres://postgres:1234@auth:5432/auth?sslmode=disable", "up" ]
+    command: [ "-path", "/migrations", "-database", "postgres://postgres:1234@postgres_db:5432/auth?sslmode=disable", "up" ]
     depends_on:
       - postgres-db
 
@@ -82,29 +83,29 @@ services:
     volumes:
       - mongo_data:/data/db
     ports:
-      - "27018:27017"
+      - "8050:8050"
     networks:
       - mynetwork
     restart: unless-stopped
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
-    container_name: zookeeper1
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 22181:2181
+      - "22181:2181"
     networks:
       - mynetwork
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4
-    container_name: kafka1
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29092:29092"
     networks:
       - mynetwork
     environment:

@@ -19,5 +19,5 @@ COPY .env .
 
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
-EXPOSE 8085
+EXPOSE 8050
 CMD ["./myapp"]

@@ -309,6 +309,13 @@ definitions:
       provider:
         $ref: '#/definitions/genproto.Provider'
     type: object
+  genproto.UpdateReviewsReq:
+    properties:
+      id:
+        type: string
+      review:
+        $ref: '#/definitions/genproto.Review'
+    type: object
   genproto.UpdateServiceReq:
     properties:
       id:
@@ -958,6 +965,33 @@ paths:
       summary: Get review
       tags:
       - carwash/review
+    put:
+      consumes:
+      - application/json
+      description: This API Put s a new review
+      parameters:
+      - description: ' review Request'
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.UpdateReviewsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: review updated successfully
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Put  review
+      tags:
+      - carwash/review
   /api/v1/review/add:
     post:
       consumes:
@@ -1173,11 +1207,6 @@ paths:
       - description: name
         in: path
         name: name
-        required: true
-        type: string
-      - description: description
-        in: path
-        name: description
         required: true
         type: string
       produces:

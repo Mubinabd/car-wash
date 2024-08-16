@@ -24,12 +24,12 @@ type Clients struct {
 
 func NewClients(cfg *cfg.Config) (*Clients, error) {
 	slog.Info("new client")
-	conn, err := grpc.NewClient("localhost:27087", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("mongo-db:8050", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
 
-	kafkaProducer, err := kafka.NewKafkaProducer([]string{"localhost:9092"})
+	kafkaProducer, err := kafka.NewKafkaProducer([]string{"kafka:9092"})
 	if err != nil {
 		return nil, err
 	}

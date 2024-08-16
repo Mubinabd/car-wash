@@ -10,12 +10,12 @@ import (
 var logFile *os.File
 
 func InitLog() {
-	var err error
-	logFile, err = os.OpenFile("./logs/carwash.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	logrus.SetOutput(io.MultiWriter(os.Stdout, logFile))
+	// var err error
+	// logFile, err = os.OpenFile("./logs/carwash.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// logrus.SetOutput(io.MultiWriter(os.Stdout, logFile))
 }
 
 func SetOutput(output io.Writer) {

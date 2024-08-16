@@ -32,14 +32,14 @@ func Load() Config {
 
   config := Config{}
 
-  config.HTTPPort = cast.ToString(GetOrReturnDefaultValue("HTTP_PORT", "27017"))
+  config.HTTPPort = cast.ToString(GetOrReturnDefaultValue("HTTP_PORT", "8050"))
 
-  config.MONGOHOST = cast.ToString(GetOrReturnDefaultValue("MONGOHOST", "localhost"))
+  config.MONGOHOST = cast.ToString(GetOrReturnDefaultValue("MONGOHOST", "mongo-db"))
   config.MONGOPORT = cast.ToInt(GetOrReturnDefaultValue("MONGOPORT", 5432))
   config.MONGOUSER = cast.ToString(GetOrReturnDefaultValue("MONGOUSER", "mubina"))
   config.MONGOPASSWORD = cast.ToString(GetOrReturnDefaultValue("MONGOPASSWORD", "1234"))
 
-  config.KafkaBrokers = parseKafkaBrokers(GetOrReturnDefaultValue("KAFKA_BROKERS", "localhost:9092"))
+  config.KafkaBrokers = parseKafkaBrokers(GetOrReturnDefaultValue("KAFKA_BROKERS", "kafka:9092"))
 
   config.DefaultOffset = cast.ToString(GetOrReturnDefaultValue("DEFAULT_OFFSET", "0"))
   config.DefaultLimit = cast.ToString(GetOrReturnDefaultValue("DEFAULT_LIMIT", "10"))
