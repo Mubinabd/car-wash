@@ -32,7 +32,7 @@ func Load() Config {
 
   config := Config{}
 
-  config.HTTPPort = cast.ToString(GetOrReturnDefaultValue("HTTP_PORT", "8050"))
+  config.HTTPPort = cast.ToString(GetOrReturnDefaultValue("HTTP_PORT", "8020"))
 
   config.MONGOHOST = cast.ToString(GetOrReturnDefaultValue("MONGOHOST", "mongo-db"))
   config.MONGOPORT = cast.ToInt(GetOrReturnDefaultValue("MONGOPORT", 5432))

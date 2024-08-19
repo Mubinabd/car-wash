@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error while connecting to mongo: ", err)
 	}
-	liss, err := net.Listen("tcp", ":8050")
+	liss, err := net.Listen("tcp",config.Load().HTTPPort)
 	if err != nil {
 		log.Fatal(err)
 	}

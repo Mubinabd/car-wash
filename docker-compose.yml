@@ -33,11 +33,11 @@ services:
     depends_on:
       - mongo-db
     ports:
-      - "8051:8050"
+      - "8022:8020"
     networks:
       - mynetwork
     environment:
-      MONGO_URI: mongodb://mongo-db:8051/carwash
+      MONGO_URI: mongodb://mongo-db:8020/carwash
 
   postgres-db:
     container_name: postgres_db
@@ -83,7 +83,7 @@ services:
     volumes:
       - mongo_data:/data/db
     ports:
-      - "8050:8050"
+      - "8020:8020"
     networks:
       - mynetwork
     restart: unless-stopped

@@ -24,7 +24,7 @@ type StorageMongo struct {
 }
 
 func ConnectMongo() (dbstore.Storage, error) {
-	uri := fmt.Sprintf("mongodb://%s:%d", "mongo-db", 8050)
+	uri := fmt.Sprintf("mongodb://%s:%d", "mongo-db", 8020)
 	clientOptions := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
