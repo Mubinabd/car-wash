@@ -80,9 +80,13 @@ jobs:
           ls -l ~/.ssh
           cat ~/.ssh/id_ed25519 || echo "Key file not found"
           chmod 600 ~/.ssh/id_ed25519
+          
+          # Start SSH agent and add key
           eval $(ssh-agent -s)
-          ssh-add -l || { echo "No keys added"; exit 1; }
           ssh-add ~/.ssh/id_ed25519 || { echo "Failed to add SSH key"; exit 1; }
+          ssh-add -l || { echo "No keys added"; exit 1; }
+          
+          # Add the server's SSH key to known hosts
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts || { echo "Failed to scan SSH key"; exit 1; }
           echo "SSH key setup complete"
 
@@ -94,5 +98,3 @@ jobs:
             sudo docker compose up -d --build
           EOF
           echo "Deployment complete"
-
-
