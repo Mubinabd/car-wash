@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 
 	pb "github.com/Mubinabd/car-wash/genproto"
@@ -88,7 +89,6 @@ func (h *Handlers) GetServices(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        name query string false "Name"
 // @Param        limit query int false "Limit"
 // @Param        offset query int false "Offset"
 // @Success      200 {object} pb.ListAllServicesResp
@@ -96,11 +96,8 @@ func (h *Handlers) GetServices(c *gin.Context) {
 // @Router       /api/v1/service [get]
 func (h *Handlers) ListAllServices(c *gin.Context) {
 	var req pb.ListAllServicesReq
-	name := c.Query("name")
 	limit := c.Query("limit")
 	offset := c.Query("offset")
-
-	req.Name = name
 
 	if limit != "" {
 		limitValue, err := strconv.Atoi(limit)
@@ -125,15 +122,36 @@ func (h *Handlers) ListAllServices(c *gin.Context) {
 		}
 		req.Filter.Offset = int32(offsetValue)
 	}
-	res, err := h.Clients.Service.ListAllServices(context.Background(), &req)
+
+	redisKey := "my_services"
+
+	cachedData, err := h.Clients.RedisClient.Get(context.Background(), redisKey).Result()
 	if err != nil {
-		c.JSON(400, gin.H{
-			"error": err.Error(),
-		})
+		if err == redis.Nil {
+			c.JSON(404, gin.H{"error": "Popular services not found in cache"})
+			return
+		}
+		logger.Error("Error fetching popular services from Redis: ", err)
+		c.JSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	logger.Info("ListAllServices: Service retrieved successfully")
-	c.JSON(200, res)
+
+	var popularServices []*pb.Services
+	err = json.Unmarshal([]byte(cachedData), &popularServices)
+	if err != nil {
+		logger.Error("Error unmarshalling popular services cached data: ", err)
+		c.JSON(500, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	var filteredServices []pb.Services
+	for _, service := range popularServices {
+		if service.Price >= 50 {
+			filteredServices = append(filteredServices, *service)
+		}
+	}
+
+	c.JSON(200, filteredServices)
 }
 
 // Put service godoc

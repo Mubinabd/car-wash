@@ -21,7 +21,7 @@ type Clients struct {
 	Reviews        pbc.ReviewServiceClient
 	Payments       pbc.PaymentServiceClient
 	KafkaProducer  kafka.KafkaProducer
-	Redis          *redis.Client
+	RedisClient          *redis.Client
 }
 
 func NewClients(cfg *cfg.Config) (*Clients, error) {
@@ -51,7 +51,7 @@ func NewClients(cfg *cfg.Config) (*Clients, error) {
 		Reviews:        pbc.NewReviewServiceClient(conn),
 		Payments:       pbc.NewPaymentServiceClient(conn),
 		KafkaProducer:  kafkaProducer,
-		Redis:          rdb,
+		RedisClient:          rdb,
 	}
 
 	return clients, nil
