@@ -77,6 +77,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+          ls -l ~/.ssh
+          cat ~/.ssh/id_ed25519 || echo "Key file not found"
           chmod 600 ~/.ssh/id_ed25519
           eval $(ssh-agent -s)
           ssh-add -l || { echo "No keys added"; exit 1; }
@@ -86,7 +88,11 @@ jobs:
 
       - name: Deploy to server
         run: |
+          echo "Deploying to server..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/mubina/car-wash
             sudo docker compose up -d --build
           EOF
+          echo "Deployment complete"
+
+
