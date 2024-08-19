@@ -48,6 +48,7 @@ func (r *BookingManager) AddBooking(req *pb.AddBookingReq) (*pb.Empty, error) {
 		return nil, err
 	}
 
+	
 	logger.Info("Booking and notification created successfully")
 
 	return &pb.Empty{}, nil

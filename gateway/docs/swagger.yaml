@@ -12,13 +12,6 @@ definitions:
       user_id:
         type: string
     type: object
-  genproto.AddNotificationReq:
-    properties:
-      message:
-        type: string
-      user_id:
-        type: string
-    type: object
   genproto.AddPaymentReq:
     properties:
       amount:
@@ -168,11 +161,6 @@ definitions:
         items:
           $ref: '#/definitions/genproto.Services'
         type: array
-    type: object
-  genproto.MarkNotificationAsReadReq:
-    properties:
-      id:
-        type: string
     type: object
   genproto.Payment:
     properties:
@@ -546,62 +534,6 @@ paths:
       summary: CREATE cart
       tags:
       - carwash/Cart
-  /api/v1/notification/{id}/read:
-    put:
-      consumes:
-      - application/json
-      description: This API marks a notification as read
-      parameters:
-      - description: Notification
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/genproto.MarkNotificationAsReadReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'message": "updated successfully'
-          schema:
-            type: string
-        "400":
-          description: 'error": "error message'
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: MARK notification as read
-      tags:
-      - carwash/Notification
-  /api/v1/notification/add:
-    post:
-      consumes:
-      - application/json
-      description: This API creates a notification
-      parameters:
-      - description: Notification
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/genproto.AddNotificationReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'message": "created successfully'
-          schema:
-            type: string
-        "400":
-          description: 'error": "error message'
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: CREATE notification
-      tags:
-      - carwash/Notification
   /api/v1/payment:
     get:
       consumes:
@@ -1026,10 +958,6 @@ paths:
       - application/json
       description: This API Lists a new service
       parameters:
-      - description: Name
-        in: query
-        name: name
-        type: string
       - description: Limit
         in: query
         name: limit

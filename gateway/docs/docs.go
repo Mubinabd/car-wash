@@ -356,96 +356,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/notification/add": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "This API creates a notification",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "carwash/Notification"
-                ],
-                "summary": "CREATE notification",
-                "parameters": [
-                    {
-                        "description": "Notification",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/genproto.AddNotificationReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message\": \"created successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "error\": \"error message",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/notification/{id}/read": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "This API marks a notification as read",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "carwash/Notification"
-                ],
-                "summary": "MARK notification as read",
-                "parameters": [
-                    {
-                        "description": "Notification",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/genproto.MarkNotificationAsReadReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message\": \"updated successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "error\": \"error message",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/payment": {
             "get": {
                 "description": "This API retrieves all Payments with optional filters",
@@ -1125,12 +1035,6 @@ const docTemplate = `{
                 "summary": "List all service",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
                         "description": "Limit",
                         "name": "limit",
@@ -1446,17 +1350,6 @@ const docTemplate = `{
                 }
             }
         },
-        "genproto.AddNotificationReq": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "genproto.AddPaymentReq": {
             "type": "object",
             "properties": {
@@ -1687,14 +1580,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/genproto.Services"
                     }
-                }
-            }
-        },
-        "genproto.MarkNotificationAsReadReq": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
                 }
             }
         },

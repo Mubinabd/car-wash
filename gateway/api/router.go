@@ -105,12 +105,6 @@ func NewRouter(h *handlers.Handlers) *gin.Engine {
 			payment.GET("", h.ListAllPayments)
 		}
 
-		// Notification routes
-		notification := v1.Group("/notification")
-		{
-			notification.POST("/add", h.AddNotification)
-			notification.PUT("/:id/read", h.MarkNotificationAsRead)
-		}
 	}
 
 	return router
